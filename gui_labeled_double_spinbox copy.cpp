@@ -1,0 +1,37 @@
+#include "gui_labeled_double_spinbox.h"
+
+#include <QLabel>
+#include <QDoubleSpinBox>
+#include <QHBoxLayout>
+
+LabeledDoubleSpinBox::LabeledDoubleSpinBox(const QString& label, QWidget* parent)
+    : QWidget(parent)
+{
+    m_label = new QLabel(label, this);
+    m_spinBox = new QDoubleSpinBox(this);
+
+    auto* layout = new QHBoxLayout(this);
+
+    layout->addWidget(m_label);
+    layout->addWidget(m_spinBox);
+
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->setSpacing(8);
+
+    setLayout(layout);
+}
+
+QDoubleSpinBox* LabeledDoubleSpinBox::spinBox()
+{
+    return m_spinBox;
+}
+
+double LabeledDoubleSpinBox::value() const
+{
+    return m_spinBox->value();
+}
+
+void LabeledDoubleSpinBox::setValue(double value)
+{
+    m_spinBox->setValue(value);
+}

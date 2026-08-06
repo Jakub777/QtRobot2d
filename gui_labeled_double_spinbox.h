@@ -1,0 +1,22 @@
+#pragma once
+
+#include <QWidget>
+
+class QLabel;
+class QDoubleSpinBox;
+
+class LabeledDoubleSpinBox : public QWidget
+{
+    Q_OBJECT
+
+public:
+    explicit LabeledDoubleSpinBox(const QString& name,
+                            QWidget* parent = nullptr);
+
+    double value() const;
+    void setValue(double value);
+
+private:
+    QLabel* m_label;
+    QDoubleSpinBox* m_spinBox;
+};
