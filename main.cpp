@@ -7,6 +7,7 @@
 #include <iostream>
 #include "canvas.h"
 #include "gui_labeled_double_spinbox.h"
+#include "gui_segment_widget.h"
 // #include "my_button.cpp"
 #include <QPushButton>
 #include "r_robot.h"
@@ -19,23 +20,27 @@ int main(int argc, char *argv[])
 
     QMainWindow appWindow;
 
-    QWidget *centralWidget = new QWidget();
+    QWidget* centralWidget = new QWidget();
     appWindow.setCentralWidget(centralWidget);
 
-    QVBoxLayout *layout = new QVBoxLayout(centralWidget);
+    QVBoxLayout* mainLayout = new QVBoxLayout(centralWidget);
+    QVBoxLayout* guiBox = new QVBoxLayout;
+
+    mainLayout->addLayout(guiBox);
 
     QLabel *label = new QLabel("Hello, Qt!");
     QPushButton *button = new QPushButton("hhhh");
 
-    LabeledDoubleSpinBox *spinBox = new LabeledDoubleSpinBox("Angle:");
     Canvas *canvas300_300 = new Canvas(CANVAS_X, CANVAS_Y); 
 
     canvas300_300->initRobot();
     
-    layout->addWidget(label);
-    layout->addWidget(button);
-    layout->addWidget(canvas300_300);
-    layout->addWidget(spinBox);
+    mainLayout->addWidget(label);
+    mainLayout->addWidget(button);
+    mainLayout->addWidget(canvas300_300);
+    guiBox->addWidget(new SegmentWidget("Segment 1 >>"));
+    guiBox->addWidget(new SegmentWidget("Segment 2 >>"));
+    guiBox->addWidget(new SegmentWidget("Segment 3 >>"));
 
     QObject::connect(button, &QPushButton::clicked,
                      canvas300_300, &Canvas::randomizeLastAngle);
