@@ -21,11 +21,6 @@ LabeledDoubleSpinBox::LabeledDoubleSpinBox(const QString& label, QWidget* parent
     setLayout(layout);
 }
 
-QDoubleSpinBox* LabeledDoubleSpinBox::spinBox()
-{
-    return m_spinBox;
-}
-
 double LabeledDoubleSpinBox::value() const
 {
     return m_spinBox->value();

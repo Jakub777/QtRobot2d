@@ -18,6 +18,7 @@ qt_add_executable(HelloQt
   r_link.cpp
   r_robot.cpp
   r_segment.cpp
+  gui_labeled_double_spinbox.cpp
 )
 
 target_link_libraries(HelloQt PRIVATE Qt6::Widgets Qt6::Gui)
