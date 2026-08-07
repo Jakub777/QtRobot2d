@@ -28,8 +28,8 @@ int main(int argc, char *argv[])
 
     mainLayout->addLayout(guiBox);
 
-    QLabel *label = new QLabel("Hello, Qt!");
-    QPushButton *button = new QPushButton("hhhh");
+    QLabel *label = new QLabel("Welcome to the robot simulator!");
+    QPushButton *button = new QPushButton("CLick the button to randomize the last angle of the robot");
 
     Canvas *canvas300_300 = new Canvas(CANVAS_X, CANVAS_Y); 
 
