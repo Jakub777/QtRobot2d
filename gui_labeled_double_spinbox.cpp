@@ -19,6 +19,9 @@ LabeledDoubleSpinBox::LabeledDoubleSpinBox(const QString& label, QWidget* parent
     layout->setSpacing(8);
 
     setLayout(layout);
+
+    connect(m_spinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+            this, &LabeledDoubleSpinBox::valueChanged);
 }
 
 double LabeledDoubleSpinBox::value() const

@@ -16,6 +16,9 @@ public:
     double value() const;
     void setValue(double value);
 
+signals:
+    void valueChanged(double value);
+
 private:
     QLabel* m_label;
     QDoubleSpinBox* m_spinBox;

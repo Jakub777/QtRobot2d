@@ -8,20 +8,18 @@
 
 class Canvas : public QWidget
 {
+    Q_OBJECT
+
 public:
     Canvas(int x = 0, int y = 0, QWidget* parent = nullptr);
-    Robot * my_robot;
 
+    void setRobot(Robot* robot);
     void addPoint(double x, double y);
-    void initRobot();
-    void randomizeLastAngle();
 
 protected:
     void paintEvent(QPaintEvent* event) override;
 
 private:
+    Robot* my_robot = nullptr;
     std::vector<Point2D> points;
-    // Scene scene;
-    // Camera camera;
-    // Renderer renderer;
 };
