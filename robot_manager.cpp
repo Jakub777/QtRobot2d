@@ -1,10 +1,16 @@
 #include "robot_manager.h"
 
+#include <QTimer>
 #include <cstdlib>
+#include <cmath>
 
 RobotManager::RobotManager(QObject* parent)
     : QObject(parent)
+    , m_animationTimer(new QTimer(this))
 {
+    m_animationTimer->setInterval(16);
+    connect(m_animationTimer, &QTimer::timeout,
+            this, &RobotManager::updateAnimation);
 }
 
 void RobotManager::createDefaultRobot()
@@ -83,9 +89,20 @@ void RobotManager::setSegmentAngle(int index, double angle)
     if (m_robots.empty() || index < 0 || index >= static_cast<int>(m_robots[m_currentRobotIndex].segments.size()))
         return;
 
-    m_robots[m_currentRobotIndex].segments[index].joint.angle = angle;
-    m_robots[m_currentRobotIndex].calculatePosition();
-    emit robotChanged();
+    auto& joint = m_robots[m_currentRobotIndex].segments[index].joint;
+    joint.targetAngle = angle;
+    joint.speed = m_globalJointSpeed;
+
+    if (!m_animateTransitions)
+    {
+        joint.angle = angle;
+        m_robots[m_currentRobotIndex].calculatePosition();
+        emit robotChanged();
+        return;
+    }
+
+    if (!m_animationTimer->isActive())
+        m_animationTimer->start();
 }
 
 void RobotManager::setSegmentLength(int index, double length)
@@ -118,9 +135,76 @@ void RobotManager::randomizeLastAngle()
         return;
 
     const int lastIndex = static_cast<int>(robot.segments.size()) - 1;
-    robot.segments[lastIndex].joint.angle = std::rand();
-    robot.calculatePosition();
-    emit robotChanged();
+    robot.segments[lastIndex].joint.targetAngle = std::rand();
+    if (!m_animateTransitions)
+    {
+        robot.segments[lastIndex].joint.angle = robot.segments[lastIndex].joint.targetAngle;
+        robot.calculatePosition();
+        emit robotChanged();
+        return;
+    }
+
+    if (!m_animationTimer->isActive())
+        m_animationTimer->start();
+}
+
+void RobotManager::setAnimateTransitions(bool enabled)
+{
+    m_animateTransitions = enabled;
+    if (!m_animateTransitions && m_animationTimer->isActive())
+        m_animationTimer->stop();
+}
+
+void RobotManager::setGlobalJointSpeed(double speed)
+{
+    if (speed <= 0.0)
+        return;
+
+    m_globalJointSpeed = speed;
+    for (auto& segment : m_robots[m_currentRobotIndex].segments)
+        segment.joint.speed = speed;
+}
+
+void RobotManager::updateAnimation()
+{
+    if (m_robots.empty())
+    {
+        if (m_animationTimer->isActive())
+            m_animationTimer->stop();
+        return;
+    }
+
+    Robot& robot = m_robots[m_currentRobotIndex];
+    bool didUpdate = false;
+    double deltaSeconds = m_animationTimer->interval() / 1000.0;
+
+    for (auto& segment : robot.segments)
+    {
+        auto& joint = segment.joint;
+        double diff = joint.targetAngle - joint.angle;
+        if (std::abs(diff) < 0.01)
+        {
+            joint.angle = joint.targetAngle;
+            continue;
+        }
+
+        didUpdate = true;
+        double maxStep = joint.speed * deltaSeconds;
+        if (std::abs(diff) <= maxStep)
+            joint.angle = joint.targetAngle;
+        else
+            joint.angle += diff > 0 ? maxStep : -maxStep;
+    }
+
+    if (didUpdate)
+    {
+        robot.calculatePosition();
+        emit robotChanged();
+    }
+    else if (m_animationTimer->isActive())
+    {
+        m_animationTimer->stop();
+    }
 }
 
 Robot* RobotManager::robot()

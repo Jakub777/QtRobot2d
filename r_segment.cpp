@@ -12,10 +12,11 @@ Segment::Segment(double angle, double length, double width)
     joint = Joint(angle);
 }
 
-void Segment::calculateAndOverwriteEnd()
+void Segment::calculateAndOverwriteEnd(double baseAngle)
 {
-    end.x = start.x + link.length * cos(joint.angle * PI / 180.0);
-    end.y = start.y - link.length * sin(joint.angle * PI / 180.0);
+    double absoluteAngle = baseAngle + joint.angle;
+    end.x = start.x + link.length * cos(absoluteAngle * PI / 180.0);
+    end.y = start.y - link.length * sin(absoluteAngle * PI / 180.0);
 }
 
 Point2D Segment::getEnd()

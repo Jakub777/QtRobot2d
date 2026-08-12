@@ -1,8 +1,11 @@
 #include "robot_controller.h"
 
 #include <QVBoxLayout>
+#include <QHBoxLayout>
 #include <QPushButton>
 #include <QLabel>
+#include <QCheckBox>
+#include <QDoubleSpinBox>
 
 RobotController::RobotController(QMainWindow* window, QObject* parent)
     : QObject(parent)
@@ -43,8 +46,28 @@ void RobotController::createMainWindow()
     guiBox->addWidget(segment2);
     guiBox->addWidget(segment3);
 
+    auto* animationToggle = new QCheckBox("Animate transitions", centralWidget);
+    animationToggle->setChecked(false);
+
+    auto* speedLayout = new QHBoxLayout;
+    auto* speedLabel = new QLabel("Joint speed (deg/s):", centralWidget);
+    auto* speedSpinBox = new QDoubleSpinBox(centralWidget);
+    speedSpinBox->setRange(1.0, 360.0);
+    speedSpinBox->setValue(90.0);
+    speedSpinBox->setSingleStep(5.0);
+    speedSpinBox->setSuffix(" deg/s");
+    speedLayout->addWidget(speedLabel);
+    speedLayout->addWidget(speedSpinBox);
+
+    guiBox->addWidget(animationToggle);
+    guiBox->addLayout(speedLayout);
+
     connect(button, &QPushButton::clicked,
             &m_manager, &RobotManager::randomizeLastAngle);
+    connect(animationToggle, &QCheckBox::toggled,
+            &m_manager, &RobotManager::setAnimateTransitions);
+    connect(speedSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+            &m_manager, &RobotManager::setGlobalJointSpeed);
     connect(&m_manager, &RobotManager::robotChanged,
             this, &RobotController::refreshCanvas);
 }

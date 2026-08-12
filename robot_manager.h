@@ -4,6 +4,8 @@
 #include <vector>
 #include "r_robot.h"
 
+class QTimer;
+
 class RobotManager : public QObject
 {
     Q_OBJECT
@@ -23,6 +25,9 @@ public:
     void setSegmentWidth(int index, double width);
     void randomizeLastAngle();
 
+    void setAnimateTransitions(bool enabled);
+    void setGlobalJointSpeed(double speed);
+
     Robot* robot();
     const Robot& robot() const;
 
@@ -30,6 +35,11 @@ signals:
     void robotChanged();
 
 private:
+    void updateAnimation();
+
     std::vector<Robot> m_robots;
     int m_currentRobotIndex = 0;
+    bool m_animateTransitions = false;
+    double m_globalJointSpeed = 90.0;
+    QTimer* m_animationTimer = nullptr;
 };

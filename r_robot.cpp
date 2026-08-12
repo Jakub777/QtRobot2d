@@ -15,18 +15,20 @@ void Robot::addStartingPoint(int x, int y)
 
  void Robot::calculatePosition()
  {
+    double cumulativeAngle = 0.0;
     for (size_t i = 0; i < segments.size(); ++i)
     {
         if (i == 0)
         {
             segments[0].start = startPoint;
-            segments[0].calculateAndOverwriteEnd();
         }
         else
         {
             segments[i].start = segments[i - 1].getEnd();
-            segments[i].calculateAndOverwriteEnd();
         }
+
+        cumulativeAngle += segments[i].joint.angle;
+        segments[i].calculateAndOverwriteEnd(cumulativeAngle);
         segments[i].debugPrint();
     }
 }
