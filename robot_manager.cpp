@@ -23,9 +23,9 @@ void RobotManager::createDefaultRobot()
     robot.addStartingPoint(150, 150);
     robot.segments.clear();
 
-    robot.addSegment(0, 40, 20);
-    robot.addSegment(45, 60, 20);
-    robot.addSegment(90, 70, 20);
+    robot.addSegment(90, 40, 20);
+    robot.addSegment(15, 60, 20);
+    robot.addSegment(15, 70, 20);
 
     robot.calculatePosition();
     emit robotChanged();
@@ -40,9 +40,9 @@ void RobotManager::addRobot()
     robot.addStartingPoint(150, 150);
     robot.segments.clear();
 
-    robot.addSegment(0, 40, 20);
-    robot.addSegment(45, 60, 20);
-    robot.addSegment(90, 70, 20);
+    robot.addSegment(15, 40, 20);
+    robot.addSegment(15, 60, 20);
+    robot.addSegment(15, 70, 20);
     robot.calculatePosition();
 
     emit robotChanged();
@@ -157,7 +157,7 @@ void RobotManager::setAnimateTransitions(bool enabled)
 
 void RobotManager::setGlobalJointSpeed(double speed)
 {
-    if (speed <= 0.0)
+    if (speed <= 0.0 || m_robots.empty())
         return;
 
     m_globalJointSpeed = speed;

@@ -15,5 +15,5 @@ Joint::Joint(double a)
     , targetAngle(a)
 {
     minAngle = 10.0;
-    maxAngle = 80.0;
+    maxAngle =  80.0;
 }

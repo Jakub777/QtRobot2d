@@ -15,6 +15,8 @@ public:
 
     double value() const;
     void setValue(double value);
+    void setRange(double minimum, double maximum);
+    void setSingleStep(double step);
 
 signals:
     void valueChanged(double value);

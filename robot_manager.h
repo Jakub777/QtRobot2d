@@ -39,7 +39,7 @@ private:
 
     std::vector<Robot> m_robots;
     int m_currentRobotIndex = 0;
-    bool m_animateTransitions = false;
-    double m_globalJointSpeed = 90.0;
+    bool m_animateTransitions = true;
+    double m_globalJointSpeed = 20.0;
     QTimer* m_animationTimer = nullptr;
 };

@@ -47,13 +47,13 @@ void RobotController::createMainWindow()
     guiBox->addWidget(segment3);
 
     auto* animationToggle = new QCheckBox("Animate transitions", centralWidget);
-    animationToggle->setChecked(false);
+    animationToggle->setChecked(true);
 
     auto* speedLayout = new QHBoxLayout;
     auto* speedLabel = new QLabel("Joint speed (deg/s):", centralWidget);
     auto* speedSpinBox = new QDoubleSpinBox(centralWidget);
     speedSpinBox->setRange(1.0, 360.0);
-    speedSpinBox->setValue(90.0);
+    speedSpinBox->setValue(20.0);
     speedSpinBox->setSingleStep(5.0);
     speedSpinBox->setSuffix(" deg/s");
     speedLayout->addWidget(speedLabel);
@@ -89,6 +89,8 @@ void RobotController::refreshCanvas()
 void RobotController::setup()
 {
     m_manager.createDefaultRobot();
+    m_manager.setAnimateTransitions(true);
+    m_manager.setGlobalJointSpeed(20.0);
     bindRobotToView();
 }
 

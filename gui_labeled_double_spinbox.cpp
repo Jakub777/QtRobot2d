@@ -10,6 +10,10 @@ LabeledDoubleSpinBox::LabeledDoubleSpinBox(const QString& label, QWidget* parent
     m_label = new QLabel(label, this);
     m_spinBox = new QDoubleSpinBox(this);
 
+    m_spinBox->setRange(-360.0, 360.0);
+    m_spinBox->setSingleStep(1.0);
+    m_spinBox->setDecimals(2);
+
     auto* layout = new QHBoxLayout(this);
 
     layout->addWidget(m_label);
@@ -32,4 +36,14 @@ double LabeledDoubleSpinBox::value() const
 void LabeledDoubleSpinBox::setValue(double value)
 {
     m_spinBox->setValue(value);
+}
+
+void LabeledDoubleSpinBox::setRange(double minimum, double maximum)
+{
+    m_spinBox->setRange(minimum, maximum);
+}
+
+void LabeledDoubleSpinBox::setSingleStep(double step)
+{
+    m_spinBox->setSingleStep(step);
 }
