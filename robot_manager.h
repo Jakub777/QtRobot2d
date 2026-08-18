@@ -1,8 +1,11 @@
 #pragma once
 
 #include <QObject>
+#include <memory>
 #include <vector>
 #include "r_robot.h"
+#include "point.h"
+#include "robot_algorithm.h"
 
 class QTimer;
 
@@ -24,6 +27,7 @@ public:
     void setSegmentLength(int index, double length);
     void setSegmentWidth(int index, double width);
     void randomizeLastAngle();
+    void moveCurrentRobotTo(const Point2D& target);
 
     void setAnimateTransitions(bool enabled);
     void setGlobalJointSpeed(double speed);
@@ -42,4 +46,5 @@ private:
     bool m_animateTransitions = true;
     double m_globalJointSpeed = 20.0;
     QTimer* m_animationTimer = nullptr;
+    std::unique_ptr<RobotAlgorithm> m_algorithm;
 };

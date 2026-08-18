@@ -12,6 +12,9 @@ qt_standard_project_setup()
 qt_add_executable(HelloQt
   main.cpp
   point.cpp
+  robot_algorithm.h
+  point_to_point_algorithm.cpp
+  point_to_point_algorithm.h
   my_button.cpp
   canvas.cpp
   r_joint.cpp

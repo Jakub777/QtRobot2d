@@ -30,9 +30,11 @@ void RobotController::createMainWindow()
 
     auto* label = new QLabel("Welcome to the robot simulator!", centralWidget);
     auto* button = new QPushButton("CLick the button to randomize the last angle of the robot", centralWidget);
+    auto* moveButton = new QPushButton("Move robot to point B", centralWidget);
 
     mainLayout->addWidget(label);
     mainLayout->addWidget(button);
+    mainLayout->addWidget(moveButton);
 
     m_canvas = new Canvas(300, 300, centralWidget);
     mainLayout->addWidget(m_canvas);
@@ -64,6 +66,9 @@ void RobotController::createMainWindow()
 
     connect(button, &QPushButton::clicked,
             &m_manager, &RobotManager::randomizeLastAngle);
+    connect(moveButton, &QPushButton::clicked, this, [this]() {
+        m_manager.moveCurrentRobotTo(Point2D(250.0, 80.0));
+    });
     connect(animationToggle, &QCheckBox::toggled,
             &m_manager, &RobotManager::setAnimateTransitions);
     connect(speedSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged),

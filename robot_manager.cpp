@@ -1,4 +1,5 @@
 #include "robot_manager.h"
+#include "point_to_point_algorithm.h"
 
 #include <QTimer>
 #include <cstdlib>
@@ -7,6 +8,7 @@
 RobotManager::RobotManager(QObject* parent)
     : QObject(parent)
     , m_animationTimer(new QTimer(this))
+    , m_algorithm(std::make_unique<PointToPointAlgorithm>())
 {
     m_animationTimer->setInterval(16);
     connect(m_animationTimer, &QTimer::timeout,
@@ -140,6 +142,35 @@ void RobotManager::randomizeLastAngle()
     {
         robot.segments[lastIndex].joint.angle = robot.segments[lastIndex].joint.targetAngle;
         robot.calculatePosition();
+        emit robotChanged();
+        return;
+    }
+
+    if (!m_animationTimer->isActive())
+        m_animationTimer->start();
+}
+
+void RobotManager::moveCurrentRobotTo(const Point2D& target)
+{
+    if (m_robots.empty() || !m_algorithm)
+        return;
+
+    const std::vector<double> targetAngles =
+        m_algorithm->calculateTargetAngles(m_robots[m_currentRobotIndex], target);
+
+    for (size_t index = 0; index < targetAngles.size(); ++index)
+    {
+        auto& joint = m_robots[m_currentRobotIndex].segments[index].joint;
+        joint.targetAngle = targetAngles[index];
+        joint.speed = m_globalJointSpeed;
+    }
+
+    if (!m_animateTransitions)
+    {
+        for (size_t index = 0; index < targetAngles.size(); ++index)
+            m_robots[m_currentRobotIndex].segments[index].joint.angle = targetAngles[index];
+
+        m_robots[m_currentRobotIndex].calculatePosition();
         emit robotChanged();
         return;
     }
