@@ -47,6 +47,15 @@ void RobotController::createMainWindow()
     m_canvas = new Canvas(300, 300, centralWidget);
     mainLayout->addWidget(m_canvas);
 
+    auto* endpointLayout = new QHBoxLayout;
+    m_currentEndPointX = new LabeledDoubleSpinBox("end X", centralWidget);
+    m_currentEndPointY = new LabeledDoubleSpinBox("end Y", centralWidget);
+    m_currentEndPointX->setReadOnly(true);
+    m_currentEndPointY->setReadOnly(true);
+    endpointLayout->addWidget(m_currentEndPointX);
+    endpointLayout->addWidget(m_currentEndPointY);
+    guiBox->addLayout(endpointLayout);
+
     auto* animationToggle = new QCheckBox("Animate transitions", centralWidget);
     animationToggle->setChecked(true);
 
@@ -121,6 +130,12 @@ void RobotController::syncSegmentWidgets()
 
     for (size_t index = 0; index < data.segments.size(); ++index)
         m_segmentWidgets[index]->setData(data.segments[index], data.moving);
+
+    if (m_currentEndPointX && m_currentEndPointY)
+    {
+        m_currentEndPointX->setValue(data.endPoint.x);
+        m_currentEndPointY->setValue(data.endPoint.y);
+    }
 }
 
 Point2D RobotController::canvasStartPoint() const

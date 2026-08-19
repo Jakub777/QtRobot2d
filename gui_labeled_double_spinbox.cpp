@@ -47,3 +47,8 @@ void LabeledDoubleSpinBox::setSingleStep(double step)
 {
     m_spinBox->setSingleStep(step);
 }
+
+void LabeledDoubleSpinBox::setReadOnly(bool readOnly)
+{
+    m_spinBox->setReadOnly(readOnly);
+}

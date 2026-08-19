@@ -17,6 +17,7 @@ public:
     void setValue(double value);
     void setRange(double minimum, double maximum);
     void setSingleStep(double step);
+    void setReadOnly(bool readOnly);
 
 signals:
     void valueChanged(double value);
