@@ -2,12 +2,13 @@
 #include <QMainWindow>
 
 #include "robot_controller.h"
+#include "robot_window.h"
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    QMainWindow appWindow;
+    RobotWindow appWindow;
     RobotController controller(&appWindow);
 
     controller.setup();

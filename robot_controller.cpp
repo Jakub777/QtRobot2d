@@ -1,20 +1,35 @@
 #include "robot_controller.h"
 
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QPushButton>
-#include <QLabel>
+#include "robot_window.h"
+
 #include <QCheckBox>
 #include <QDoubleSpinBox>
+#include <QPushButton>
 
-RobotController::RobotController(QMainWindow* window, QObject* parent)
+RobotController::RobotController(RobotWindow* window, QObject* parent)
     : QObject(parent)
     , m_window(window)
 {
     if (!m_window)
         return;
 
-    createMainWindow();
+        m_canvas = m_window->canvas();
+        m_segmentsLayout = m_window->segmentsLayout();
+        m_currentEndPointX = m_window->endPointX();
+        m_currentEndPointY = m_window->endPointY();
+
+        connect(m_window->randomizeButton(), &QPushButton::clicked,
+            &m_manager, &RobotManager::randomizeLastAngle);
+        connect(m_window->moveButton(), &QPushButton::clicked, this, [this]() {
+        m_manager.moveCurrentRobotTo(Point2D(250.0, 80.0));
+        });
+        connect(m_window->animationToggle(), &QCheckBox::toggled,
+            &m_manager, &RobotManager::setAnimateTransitions);
+        connect(m_window->speedSpinBox(), QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+            &m_manager, &RobotManager::setGlobalJointSpeed);
+        connect(&m_manager, &RobotManager::robotChanged,
+            this, &RobotController::refreshCanvas);
+
     bindRobotToView();
 
     m_syncTimer = new QTimer(this);
@@ -22,67 +37,6 @@ RobotController::RobotController(QMainWindow* window, QObject* parent)
     connect(m_syncTimer, &QTimer::timeout,
             this, &RobotController::syncSegmentWidgets);
     m_syncTimer->start();
-}
-
-void RobotController::createMainWindow()
-{
-    QWidget* centralWidget = new QWidget(m_window);
-    m_window->setCentralWidget(centralWidget);
-
-    auto* mainLayout = new QVBoxLayout(centralWidget);
-    auto* guiBox = new QVBoxLayout;
-    m_segmentsLayout = new QVBoxLayout;
-
-    mainLayout->addLayout(guiBox);
-    guiBox->addLayout(m_segmentsLayout);
-
-    auto* label = new QLabel("Welcome to the robot simulator!", centralWidget);
-    auto* button = new QPushButton("CLick the button to randomize the last angle of the robot", centralWidget);
-    auto* moveButton = new QPushButton("Move robot to point B", centralWidget);
-
-    mainLayout->addWidget(label);
-    mainLayout->addWidget(button);
-    mainLayout->addWidget(moveButton);
-
-    m_canvas = new Canvas(300, 300, centralWidget);
-    mainLayout->addWidget(m_canvas);
-
-    auto* endpointLayout = new QHBoxLayout;
-    m_currentEndPointX = new LabeledDoubleSpinBox("end X", centralWidget);
-    m_currentEndPointY = new LabeledDoubleSpinBox("end Y", centralWidget);
-    m_currentEndPointX->setReadOnly(true);
-    m_currentEndPointY->setReadOnly(true);
-    endpointLayout->addWidget(m_currentEndPointX);
-    endpointLayout->addWidget(m_currentEndPointY);
-    guiBox->addLayout(endpointLayout);
-
-    auto* animationToggle = new QCheckBox("Animate transitions", centralWidget);
-    animationToggle->setChecked(true);
-
-    auto* speedLayout = new QHBoxLayout;
-    auto* speedLabel = new QLabel("Joint speed (deg/s):", centralWidget);
-    auto* speedSpinBox = new QDoubleSpinBox(centralWidget);
-    speedSpinBox->setRange(1.0, 360.0);
-    speedSpinBox->setValue(20.0);
-    speedSpinBox->setSingleStep(5.0);
-    speedSpinBox->setSuffix(" deg/s");
-    speedLayout->addWidget(speedLabel);
-    speedLayout->addWidget(speedSpinBox);
-
-    guiBox->addWidget(animationToggle);
-    guiBox->addLayout(speedLayout);
-
-    connect(button, &QPushButton::clicked,
-            &m_manager, &RobotManager::randomizeLastAngle);
-    connect(moveButton, &QPushButton::clicked, this, [this]() {
-        m_manager.moveCurrentRobotTo(Point2D(250.0, 80.0));
-    });
-    connect(animationToggle, &QCheckBox::toggled,
-            &m_manager, &RobotManager::setAnimateTransitions);
-    connect(speedSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-            &m_manager, &RobotManager::setGlobalJointSpeed);
-    connect(&m_manager, &RobotManager::robotChanged,
-            this, &RobotController::refreshCanvas);
 }
 
 void RobotController::bindRobotToView()

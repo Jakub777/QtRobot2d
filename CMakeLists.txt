@@ -26,6 +26,7 @@ qt_add_executable(HelloQt
   gui_labeled_double_spinbox.cpp
   gui_segment_widget.cpp
   robot_manager.cpp
+  robot_window.cpp
   robot_controller.cpp
 )
 
