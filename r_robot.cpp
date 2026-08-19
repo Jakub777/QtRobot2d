@@ -54,8 +54,8 @@ void Robot::draw(QPainter& painter)
 RobotViewData Robot::createViewData() const
 {
     RobotViewData viewData;
+    viewData.moving = moving;
     viewData.startPoint = startPoint;
-    viewData.endPoint = endPoint;
     viewData.segments.reserve(segments.size());
 
     for (const auto& segment : segments)
@@ -63,7 +63,9 @@ RobotViewData Robot::createViewData() const
         viewData.segments.push_back({
             segment.start,
             segment.end,
-            segment.link.width
+            segment.link.width,
+            segment.link.length,
+            segment.joint.angle
         });
     }
 

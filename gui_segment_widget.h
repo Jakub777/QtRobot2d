@@ -5,6 +5,7 @@
 #include <QHBoxLayout>
 #include "gui_labeled_double_spinbox.h"
 #include "robot_manager.h"
+#include "robot_view_data.h"
 
 class SegmentWidget : public QWidget
 {
@@ -12,6 +13,7 @@ class SegmentWidget : public QWidget
 
 public:
     explicit SegmentWidget(QString name, RobotManager* manager = nullptr, int index = -1, QWidget* parent = nullptr);
+    void setData(const RobotSegmentViewData& data, bool moving);
 
 private slots:
     void onAngleChanged(double value);

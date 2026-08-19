@@ -10,6 +10,7 @@ class Robot
 public:
     std::vector<Segment> segments;
     Point2D startPoint;
+    bool moving = false;
     Robot();
     void addStartingPoint(int x, int y);
     void addSegment(double angle, double length, double width);

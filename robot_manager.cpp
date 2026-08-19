@@ -91,18 +91,20 @@ void RobotManager::setSegmentAngle(int index, double angle)
     if (m_robots.empty() || index < 0 || index >= static_cast<int>(m_robots[m_currentRobotIndex].segments.size()))
         return;
 
-    auto& joint = m_robots[m_currentRobotIndex].segments[index].joint;
+    Robot& robot = m_robots[m_currentRobotIndex];
+    auto& joint = robot.segments[index].joint;
     joint.targetAngle = angle;
     joint.speed = m_globalJointSpeed;
 
     if (!m_animateTransitions)
     {
         joint.angle = angle;
-        m_robots[m_currentRobotIndex].calculatePosition();
+        robot.calculatePosition();
         emit robotChanged();
         return;
     }
 
+    robot.moving = true;
     if (!m_animationTimer->isActive())
         m_animationTimer->start();
 }
@@ -146,6 +148,7 @@ void RobotManager::randomizeLastAngle()
         return;
     }
 
+    robot.moving = true;
     if (!m_animationTimer->isActive())
         m_animationTimer->start();
 }
@@ -175,6 +178,7 @@ void RobotManager::moveCurrentRobotTo(const Point2D& target)
         return;
     }
 
+    m_robots[m_currentRobotIndex].moving = true;
     if (!m_animationTimer->isActive())
         m_animationTimer->start();
 }
@@ -184,6 +188,9 @@ void RobotManager::setAnimateTransitions(bool enabled)
     m_animateTransitions = enabled;
     if (!m_animateTransitions && m_animationTimer->isActive())
         m_animationTimer->stop();
+
+    if (!m_animateTransitions && !m_robots.empty())
+        m_robots[m_currentRobotIndex].moving = false;
 }
 
 void RobotManager::setGlobalJointSpeed(double speed)
@@ -235,6 +242,8 @@ void RobotManager::updateAnimation()
     else if (m_animationTimer->isActive())
     {
         m_animationTimer->stop();
+        robot.moving = false;
+        emit robotChanged();
     }
 }
 

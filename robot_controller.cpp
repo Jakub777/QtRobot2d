@@ -16,6 +16,12 @@ RobotController::RobotController(QMainWindow* window, QObject* parent)
 
     createMainWindow();
     bindRobotToView();
+
+    m_syncTimer = new QTimer(this);
+    m_syncTimer->setInterval(200);
+    connect(m_syncTimer, &QTimer::timeout,
+            this, &RobotController::syncSegmentWidgets);
+    m_syncTimer->start();
 }
 
 void RobotController::createMainWindow()
@@ -25,8 +31,10 @@ void RobotController::createMainWindow()
 
     auto* mainLayout = new QVBoxLayout(centralWidget);
     auto* guiBox = new QVBoxLayout;
+    m_segmentsLayout = new QVBoxLayout;
 
     mainLayout->addLayout(guiBox);
+    guiBox->addLayout(m_segmentsLayout);
 
     auto* label = new QLabel("Welcome to the robot simulator!", centralWidget);
     auto* button = new QPushButton("CLick the button to randomize the last angle of the robot", centralWidget);
@@ -38,15 +46,6 @@ void RobotController::createMainWindow()
 
     m_canvas = new Canvas(300, 300, centralWidget);
     mainLayout->addWidget(m_canvas);
-
-    auto* segment1 = new SegmentWidget("Segment 1 >>", &m_manager, 0, centralWidget);
-    auto* segment2 = new SegmentWidget("Segment 2 >>", &m_manager, 1, centralWidget);
-    auto* segment3 = new SegmentWidget("Segment 3 >>", &m_manager, 2, centralWidget);
-
-    m_segmentWidgets = {segment1, segment2, segment3};
-    guiBox->addWidget(segment1);
-    guiBox->addWidget(segment2);
-    guiBox->addWidget(segment3);
 
     auto* animationToggle = new QCheckBox("Animate transitions", centralWidget);
     animationToggle->setChecked(true);
@@ -89,6 +88,39 @@ void RobotController::refreshCanvas()
 {
     if (m_canvas)
     m_canvas->setRobotData(m_manager.robotViewData());
+
+    syncSegmentWidgets();
+}
+
+void RobotController::syncSegmentWidgets()
+{
+    if (!m_segmentsLayout)
+        return;
+
+    const RobotViewData data = m_manager.robotViewData();
+
+    while (m_segmentWidgets.size() > data.segments.size())
+    {
+        SegmentWidget* widget = m_segmentWidgets.back();
+        m_segmentWidgets.pop_back();
+        m_segmentsLayout->removeWidget(widget);
+        widget->deleteLater();
+    }
+
+    while (m_segmentWidgets.size() < data.segments.size())
+    {
+        const int index = static_cast<int>(m_segmentWidgets.size());
+        auto* widget = new SegmentWidget(
+            QString("Segment %1 >>").arg(index + 1),
+            &m_manager,
+            index,
+            m_window->centralWidget());
+        m_segmentsLayout->addWidget(widget);
+        m_segmentWidgets.push_back(widget);
+    }
+
+    for (size_t index = 0; index < data.segments.size(); ++index)
+        m_segmentWidgets[index]->setData(data.segments[index], data.moving);
 }
 
 void RobotController::setup()
@@ -97,6 +129,7 @@ void RobotController::setup()
     m_manager.setAnimateTransitions(true);
     m_manager.setGlobalJointSpeed(20.0);
     bindRobotToView();
+    syncSegmentWidgets();
 }
 
 void RobotController::addRobot()

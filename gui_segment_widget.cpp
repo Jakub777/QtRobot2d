@@ -3,6 +3,7 @@
 #include <QHBoxLayout>
 #include "gui_segment_widget.h"
 #include "gui_labeled_double_spinbox.h"
+#include <QSignalBlocker>
 
 SegmentWidget::SegmentWidget(QString name, RobotManager* manager, int index, QWidget* parent)
     : QWidget(parent)
@@ -19,26 +20,29 @@ SegmentWidget::SegmentWidget(QString name, RobotManager* manager, int index, QWi
     layout->addWidget(nameLabel);
     layout->addWidget(angleDsSpinBox);
     layout->addWidget(lengthDsSpinBox);
-    layout->addWidget(widthDsSpinBox);
+        layout->addWidget(widthDsSpinBox);
 
-    connect(angleDsSpinBox, &LabeledDoubleSpinBox::valueChanged,
+        connect(angleDsSpinBox, &LabeledDoubleSpinBox::valueChanged,
             this, &SegmentWidget::onAngleChanged);
-    connect(lengthDsSpinBox, &LabeledDoubleSpinBox::valueChanged,
+        connect(lengthDsSpinBox, &LabeledDoubleSpinBox::valueChanged,
             this, &SegmentWidget::onLengthChanged);
-    connect(widthDsSpinBox, &LabeledDoubleSpinBox::valueChanged,
+        connect(widthDsSpinBox, &LabeledDoubleSpinBox::valueChanged,
             this, &SegmentWidget::onWidthChanged);
+}
 
-    if (!m_manager || m_segmentIndex < 0)
-        return;
+void SegmentWidget::setData(const RobotSegmentViewData& data, bool moving)
+{
+    const QSignalBlocker angleBlocker(angleDsSpinBox);
+    const QSignalBlocker lengthBlocker(lengthDsSpinBox);
+    const QSignalBlocker widthBlocker(widthDsSpinBox);
 
-    auto* robot = m_manager->robot();
-    if (!robot || m_segmentIndex >= static_cast<int>(robot->segments.size()))
-        return;
+    angleDsSpinBox->setValue(data.angle);
+    lengthDsSpinBox->setValue(data.length);
+    widthDsSpinBox->setValue(data.width);
 
-    const auto& segment = robot->segments[m_segmentIndex];
-    angleDsSpinBox->setValue(segment.joint.angle);
-    lengthDsSpinBox->setValue(segment.link.length);
-    widthDsSpinBox->setValue(segment.link.width);
+    angleDsSpinBox->setEnabled(!moving);
+    lengthDsSpinBox->setEnabled(!moving);
+    widthDsSpinBox->setEnabled(!moving);
 }
 
 void SegmentWidget::onAngleChanged(double value)

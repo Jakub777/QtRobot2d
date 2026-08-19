@@ -15,6 +15,7 @@ struct RobotSegmentViewData
 class RobotViewData
 {
 public:
+    bool moving = false;
     Point2D startPoint;
     Point2D endPoint;
     std::vector<RobotSegmentViewData> segments;
