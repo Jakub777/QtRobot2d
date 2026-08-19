@@ -9,12 +9,11 @@ Canvas::Canvas(int width, int height, QWidget* parent)
 {
     setMinimumHeight(height);
     setMinimumWidth(width);
-    my_robot = nullptr;
 }
 
-void Canvas::setRobot(Robot* robot)
+void Canvas::setRobotData(const RobotViewData& robotData)
 {
-    my_robot = robot;
+    my_robot = robotData;
     update();
 }
 
@@ -35,6 +34,11 @@ void Canvas::paintEvent(QPaintEvent* event)
     {
         painter.drawEllipse(QPointF(point.x, point.y), 3, 3);
     }
-    if (my_robot != nullptr)
-        my_robot->draw(painter);
+    for (const auto& segment : my_robot.segments)
+    {
+        painter.drawLine(segment.start.x,
+                         segment.start.y,
+                         segment.end.x,
+                         segment.end.y);
+    }
 }

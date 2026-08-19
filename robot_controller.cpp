@@ -82,13 +82,13 @@ void RobotController::bindRobotToView()
     if (!m_canvas)
         return;
 
-    m_canvas->setRobot(m_manager.robot());
+    m_canvas->setRobotData(m_manager.robotViewData());
 }
 
 void RobotController::refreshCanvas()
 {
     if (m_canvas)
-        m_canvas->update();
+    m_canvas->setRobotData(m_manager.robotViewData());
 }
 
 void RobotController::setup()

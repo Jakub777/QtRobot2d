@@ -250,3 +250,11 @@ const Robot& RobotManager::robot() const
 {
     return m_robots[m_currentRobotIndex];
 }
+
+RobotViewData RobotManager::robotViewData() const
+{
+    if (m_robots.empty())
+        return {};
+
+    return m_robots[m_currentRobotIndex].createViewData();
+}

@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 #include "r_robot.h"
+#include "robot_view_data.h"
 #include "point.h"
 #include "robot_algorithm.h"
 
@@ -34,6 +35,8 @@ public:
 
     Robot* robot();
     const Robot& robot() const;
+    RobotViewData robotViewData() const;
+    
 
 signals:
     void robotChanged();
