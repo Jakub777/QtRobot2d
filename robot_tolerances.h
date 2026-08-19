@@ -2,6 +2,6 @@
 
 namespace RobotTolerances
 {
-    double position = 1.0;
-    double angle = 0.01;
+    inline constexpr double position = 1.0;
+    inline constexpr double angle = 0.01;
 }
