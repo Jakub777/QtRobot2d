@@ -16,14 +16,14 @@ RobotManager::RobotManager(QObject* parent)
             this, &RobotManager::updateAnimation);
 }
 
-void RobotManager::createDefaultRobot()
+void RobotManager::createDefaultRobot(const Point2D& startPoint)
 {
     m_robots.clear();
     m_robots.emplace_back(Robot());
     m_currentRobotIndex = 0;
 
     Robot& robot = m_robots.front();
-    robot.addStartingPoint(150, 150);
+    robot.addStartingPoint(startPoint.x, startPoint.y);
     robot.segments.clear();
 
     robot.addSegment(90, 40, 20);
@@ -34,13 +34,13 @@ void RobotManager::createDefaultRobot()
     emit robotChanged();
 }
 
-void RobotManager::addRobot()
+void RobotManager::addRobot(const Point2D& startPoint)
 {
     m_robots.emplace_back(Robot());
     m_currentRobotIndex = static_cast<int>(m_robots.size()) - 1;
 
     Robot& robot = m_robots.back();
-    robot.addStartingPoint(150, 150);
+    robot.addStartingPoint(startPoint.x, startPoint.y);
     robot.segments.clear();
 
     robot.addSegment(15, 40, 20);

@@ -123,9 +123,17 @@ void RobotController::syncSegmentWidgets()
         m_segmentWidgets[index]->setData(data.segments[index], data.moving);
 }
 
+Point2D RobotController::canvasStartPoint() const
+{
+    if (!m_canvas)
+        return {};
+
+    return Point2D(m_canvas->width() / 2.0, m_canvas->height());
+}
+
 void RobotController::setup()
 {
-    m_manager.createDefaultRobot();
+    m_manager.createDefaultRobot(canvasStartPoint());
     m_manager.setAnimateTransitions(true);
     m_manager.setGlobalJointSpeed(20.0);
     bindRobotToView();
@@ -134,6 +142,6 @@ void RobotController::setup()
 
 void RobotController::addRobot()
 {
-    m_manager.addRobot();
+    m_manager.addRobot(canvasStartPoint());
     bindRobotToView();
 }

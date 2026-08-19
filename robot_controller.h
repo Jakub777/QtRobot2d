@@ -24,6 +24,7 @@ private:
     void bindRobotToView();
     void refreshCanvas();
     void syncSegmentWidgets();
+    Point2D canvasStartPoint() const;
 
     QMainWindow* m_window = nullptr;
     RobotManager m_manager;

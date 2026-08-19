@@ -17,8 +17,8 @@ class RobotManager : public QObject
 public:
     explicit RobotManager(QObject* parent = nullptr);
 
-    void createDefaultRobot();
-    void addRobot();
+    void createDefaultRobot(const Point2D& startPoint);
+    void addRobot(const Point2D& startPoint);
     void setCurrentRobot(int index);
     int robotCount() const;
     bool hasRobots() const;
