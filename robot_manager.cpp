@@ -1,5 +1,6 @@
 #include "robot_manager.h"
 #include "point_to_point_algorithm.h"
+#include "robot_tolerances.h"
 
 #include <QTimer>
 #include <cstdlib>
@@ -220,7 +221,7 @@ void RobotManager::updateAnimation()
     {
         auto& joint = segment.joint;
         double diff = joint.targetAngle - joint.angle;
-        if (std::abs(diff) < 0.01)
+        if (std::abs(diff) < RobotTolerances::angle)
         {
             joint.angle = joint.targetAngle;
             continue;

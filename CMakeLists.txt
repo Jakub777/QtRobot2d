@@ -12,8 +12,8 @@ qt_standard_project_setup()
 qt_add_executable(HelloQt
   main.cpp
   point.cpp
-  robot_view_data.cpp
   robot_view_data.h
+  robot_tolerances.h
   robot_algorithm.h
   point_to_point_algorithm.cpp
   point_to_point_algorithm.h

@@ -1,6 +1,7 @@
 #include "point_to_point_algorithm.h"
 
 #include "r_robot.h"
+#include "robot_tolerances.h"
 
 #include <algorithm>
 #include <cmath>
@@ -9,7 +10,6 @@ namespace
 {
 constexpr double pi = 3.14159265358979323846;
 constexpr int maxIterations = 30;
-constexpr double positionTolerance = 1.0;
 
 double robotAngle(double x, double y)
 {
@@ -44,7 +44,7 @@ std::vector<double> PointToPointAlgorithm::calculateTargetAngles(
         if (workingRobot.segments.empty())
             break;
 
-        if (distance(workingRobot.segments.back().end, target) <= positionTolerance)
+        if (distance(workingRobot.segments.back().end, target) <= RobotTolerances::position)
             break;
 
         for (int index = static_cast<int>(workingRobot.segments.size()) - 1;
