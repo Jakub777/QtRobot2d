@@ -11,7 +11,7 @@ public:
     Point2D start;
     Point2D end;
     Segment(double angle, double length, double width);
-    void calculateAndOverwriteEnd();
+    void calculateAndOverwriteEnd(double baseAngle);
     Point2D getEnd();
-    void debugPrint() const;
+    void debugPrint(int i) const;
 };

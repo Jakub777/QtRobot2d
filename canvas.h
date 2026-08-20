@@ -3,25 +3,23 @@
 #include <QWidget>
 #include <QPainter>
 #include <vector>
-#include "r_robot.h"
 #include "point.h"
+#include "robot_view_data.h"
 
 class Canvas : public QWidget
 {
+    Q_OBJECT
+
 public:
     Canvas(int x = 0, int y = 0, QWidget* parent = nullptr);
-    Robot * my_robot;
 
+    void setRobotData(const RobotViewData& robotData);
     void addPoint(double x, double y);
-    void initRobot();
-    void randomizeLastAngle();
 
 protected:
     void paintEvent(QPaintEvent* event) override;
 
 private:
+    RobotViewData my_robot;
     std::vector<Point2D> points;
-    // Scene scene;
-    // Camera camera;
-    // Renderer renderer;
 };

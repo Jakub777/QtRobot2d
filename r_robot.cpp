@@ -15,19 +15,22 @@ void Robot::addStartingPoint(int x, int y)
 
  void Robot::calculatePosition()
  {
+     endPoint = startPoint;
+    double cumulativeAngle = 0.0;
     for (size_t i = 0; i < segments.size(); ++i)
     {
         if (i == 0)
         {
             segments[0].start = startPoint;
-            segments[0].calculateAndOverwriteEnd();
         }
         else
         {
             segments[i].start = segments[i - 1].getEnd();
-            segments[i].calculateAndOverwriteEnd();
         }
-        segments[i].debugPrint();
+        cumulativeAngle += segments[i].joint.angle;
+        segments[i].calculateAndOverwriteEnd(cumulativeAngle);
+        endPoint = segments[i].end;
+        segments[i].debugPrint(i);
     }
 }
 
@@ -48,4 +51,26 @@ void Robot::draw(QPainter& painter)
                          segment.end.x,
                          segment.end.y);
     }
+}
+
+RobotViewData Robot::createViewData() const
+{
+    RobotViewData viewData;
+    viewData.moving = moving;
+    viewData.startPoint = startPoint;
+    viewData.endPoint = endPoint;
+    viewData.segments.reserve(segments.size());
+
+    for (const auto& segment : segments)
+    {
+        viewData.segments.push_back({
+            segment.start,
+            segment.end,
+            segment.link.width,
+            segment.link.length,
+            segment.joint.angle
+        });
+    }
+
+    return viewData;
 }

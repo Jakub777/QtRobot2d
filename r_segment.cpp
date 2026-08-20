@@ -12,10 +12,14 @@ Segment::Segment(double angle, double length, double width)
     joint = Joint(angle);
 }
 
-void Segment::calculateAndOverwriteEnd()
+void Segment::calculateAndOverwriteEnd(double baseAngle)
 {
-    end.x = start.x + link.length * cos(joint.angle * PI / 180.0);
-    end.y = start.y - link.length * sin(joint.angle * PI / 180.0);
+    // double absoluteAngle = baseAngle + joint.angle; TO DO- check how many variables are needed
+    double absoluteAngle = baseAngle;
+    end.x = start.x + link.length * cos(absoluteAngle * PI / 180.0);
+    std::cout << "kat: " << absoluteAngle << " cosinus: " << cos(absoluteAngle * PI / 180.0) << std::endl ;
+    end.y = start.y - link.length * sin(absoluteAngle * PI / 180.0);
+    std::cout << "kat: " << absoluteAngle << " sinus: " << cos(absoluteAngle * PI / 180.0) << std::endl ;
 }
 
 Point2D Segment::getEnd()
@@ -23,9 +27,9 @@ Point2D Segment::getEnd()
     return end;
 }
 
-void Segment::debugPrint() const
+void Segment::debugPrint(int i) const
 {
-    std::cout << "Segment\n";
+    std::cout << "Segment " << i << "\n";
     std::cout << "  Angle : " << joint.angle << '\n';
     std::cout << "  Start : (" << start.x << ", " << start.y << ")\n";
     std::cout << "  End   : (" << end.x << ", " << end.y << ")\n";
