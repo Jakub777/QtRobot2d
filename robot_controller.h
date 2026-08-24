@@ -7,6 +7,7 @@
 #include "robot_manager.h"
 
 class RobotWindow;
+class QTimer;
 
 class RobotController : public QObject
 {
@@ -22,6 +23,9 @@ private:
     void bindRobotToView();
     void refreshCanvas();
     void syncSegmentControls();
+    void setAnimateTransitions(bool enabled);
+    void updateAnimation();
+    bool hasPendingAnimation() const;
     Point2D canvasStartPoint() const;
 
     RobotWindow* m_window = nullptr;
@@ -30,4 +34,6 @@ private:
     QVBoxLayout* m_segmentsLayout = nullptr;
     LabeledDoubleSpinBox* m_currentEndPointX = nullptr;
     LabeledDoubleSpinBox* m_currentEndPointY = nullptr;
+    QTimer* m_animationTimer = nullptr;
+    bool m_animateTransitions = true;
 };

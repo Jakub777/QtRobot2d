@@ -1,19 +1,12 @@
 #include "robot_manager.h"
 #include "point_to_point_algorithm.h"
-#include "robot_tolerances.h"
 
-#include <QTimer>
 #include <cstdlib>
-#include <cmath>
 
 RobotManager::RobotManager(QObject* parent)
     : QObject(parent)
-    , m_animationTimer(new QTimer(this))
     , m_algorithm(std::make_unique<PointToPointAlgorithm>())
 {
-    m_animationTimer->setInterval(16);
-    connect(m_animationTimer, &QTimer::timeout,
-            this, &RobotManager::updateAnimation);
 }
 
 void RobotManager::createDefaultRobot(const Point2D& startPoint)
@@ -97,17 +90,7 @@ void RobotManager::setSegmentAngle(int index, double angle)
     joint.targetAngle = angle;
     joint.speed = m_globalJointSpeed;
 
-    if (!m_animateTransitions)
-    {
-        joint.angle = angle;
-        robot.calculatePosition();
-        emit robotChanged();
-        return;
-    }
-
-    robot.moving = true;
-    if (!m_animationTimer->isActive())
-        m_animationTimer->start();
+    emit robotChanged();
 }
 
 void RobotManager::setSegmentLength(int index, double length)
@@ -141,17 +124,7 @@ void RobotManager::randomizeLastAngle()
 
     const int lastIndex = static_cast<int>(robot.segments.size()) - 1;
     robot.segments[lastIndex].joint.targetAngle = std::rand();
-    if (!m_animateTransitions)
-    {
-        robot.segments[lastIndex].joint.angle = robot.segments[lastIndex].joint.targetAngle;
-        robot.calculatePosition();
-        emit robotChanged();
-        return;
-    }
-
-    robot.moving = true;
-    if (!m_animationTimer->isActive())
-        m_animationTimer->start();
+    emit robotChanged();
 }
 
 void RobotManager::moveCurrentRobotTo(const Point2D& target)
@@ -169,29 +142,7 @@ void RobotManager::moveCurrentRobotTo(const Point2D& target)
         joint.speed = m_globalJointSpeed;
     }
 
-    if (!m_animateTransitions)
-    {
-        for (size_t index = 0; index < targetAngles.size(); ++index)
-            m_robots[m_currentRobotIndex].segments[index].joint.angle = targetAngles[index];
-
-        m_robots[m_currentRobotIndex].calculatePosition();
-        emit robotChanged();
-        return;
-    }
-
-    m_robots[m_currentRobotIndex].moving = true;
-    if (!m_animationTimer->isActive())
-        m_animationTimer->start();
-}
-
-void RobotManager::setAnimateTransitions(bool enabled)
-{
-    m_animateTransitions = enabled;
-    if (!m_animateTransitions && m_animationTimer->isActive())
-        m_animationTimer->stop();
-
-    if (!m_animateTransitions && !m_robots.empty())
-        m_robots[m_currentRobotIndex].moving = false;
+    emit robotChanged();
 }
 
 void RobotManager::setGlobalJointSpeed(double speed)
@@ -200,52 +151,19 @@ void RobotManager::setGlobalJointSpeed(double speed)
         return;
 
     m_globalJointSpeed = speed;
-    for (auto& segment : m_robots[m_currentRobotIndex].segments)
-        segment.joint.speed = speed;
+    for (auto& robot : m_robots)
+        for (auto& segment : robot.segments)
+            segment.joint.speed = speed;
 }
 
-void RobotManager::updateAnimation()
+std::vector<Robot>& RobotManager::robots()
 {
-    if (m_robots.empty())
-    {
-        if (m_animationTimer->isActive())
-            m_animationTimer->stop();
-        return;
-    }
+    return m_robots;
+}
 
-    Robot& robot = m_robots[m_currentRobotIndex];
-    bool didUpdate = false;
-    double deltaSeconds = m_animationTimer->interval() / 1000.0;
-
-    for (auto& segment : robot.segments)
-    {
-        auto& joint = segment.joint;
-        double diff = joint.targetAngle - joint.angle;
-        if (std::abs(diff) < RobotTolerances::angle)
-        {
-            joint.angle = joint.targetAngle;
-            continue;
-        }
-
-        didUpdate = true;
-        double maxStep = joint.speed * deltaSeconds;
-        if (std::abs(diff) <= maxStep)
-            joint.angle = joint.targetAngle;
-        else
-            joint.angle += diff > 0 ? maxStep : -maxStep;
-    }
-
-    if (didUpdate)
-    {
-        robot.calculatePosition();
-        emit robotChanged();
-    }
-    else if (m_animationTimer->isActive())
-    {
-        m_animationTimer->stop();
-        robot.moving = false;
-        emit robotChanged();
-    }
+const std::vector<Robot>& RobotManager::robots() const
+{
+    return m_robots;
 }
 
 Robot* RobotManager::robot()

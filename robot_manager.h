@@ -30,9 +30,10 @@ public:
     void randomizeLastAngle();
     void moveCurrentRobotTo(const Point2D& target);
 
-    void setAnimateTransitions(bool enabled);
     void setGlobalJointSpeed(double speed);
 
+    std::vector<Robot>& robots();
+    const std::vector<Robot>& robots() const;
     Robot* robot();
     const Robot& robot() const;
     RobotViewData robotViewData() const;
@@ -42,12 +43,8 @@ signals:
     void robotChanged();
 
 private:
-    void updateAnimation();
-
     std::vector<Robot> m_robots;
     int m_currentRobotIndex = 0;
-    bool m_animateTransitions = true;
     double m_globalJointSpeed = 20.0;
-    QTimer* m_animationTimer = nullptr;
     std::unique_ptr<RobotAlgorithm> m_algorithm;
 };

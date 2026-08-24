@@ -5,10 +5,14 @@
 #include <QCheckBox>
 #include <QDoubleSpinBox>
 #include <QPushButton>
+#include <QTimer>
+#include <cmath>
+#include "robot_tolerances.h"
 
 RobotController::RobotController(RobotWindow* window, QObject* parent)
     : QObject(parent)
     , m_window(window)
+    , m_animationTimer(new QTimer(this))
 {
     if (!m_window)
         return;
@@ -24,11 +28,15 @@ RobotController::RobotController(RobotWindow* window, QObject* parent)
         m_manager.moveCurrentRobotTo(Point2D(250.0, 80.0));
         });
         connect(m_window->animationToggle(), &QCheckBox::toggled,
-            &m_manager, &RobotManager::setAnimateTransitions);
+            this, &RobotController::setAnimateTransitions);
         connect(m_window->speedSpinBox(), QOverload<double>::of(&QDoubleSpinBox::valueChanged),
             &m_manager, &RobotManager::setGlobalJointSpeed);
         connect(&m_manager, &RobotManager::robotChanged,
             this, &RobotController::refreshCanvas);
+
+            m_animationTimer->setInterval(16);
+            connect(m_animationTimer, &QTimer::timeout,
+                this, &RobotController::updateAnimation);
 
     bindRobotToView();
 
@@ -44,10 +52,105 @@ void RobotController::bindRobotToView()
 
 void RobotController::refreshCanvas()
 {
+    if (!m_animateTransitions)
+    {
+        for (auto& robot : m_manager.robots())
+        {
+            for (auto& segment : robot.segments)
+                segment.joint.angle = segment.joint.targetAngle;
+            robot.moving = false;
+            robot.calculatePosition();
+        }
+    }
+
+    if (m_animateTransitions && hasPendingAnimation() && !m_animationTimer->isActive())
+        m_animationTimer->start();
+
     if (m_canvas)
     m_canvas->setRobotData(m_manager.robotViewData());
 
     syncSegmentControls();
+}
+
+void RobotController::setAnimateTransitions(bool enabled)
+{
+    m_animateTransitions = enabled;
+    if (!enabled)
+    {
+        m_animationTimer->stop();
+        for (auto& robot : m_manager.robots())
+        {
+            for (auto& segment : robot.segments)
+                segment.joint.angle = segment.joint.targetAngle;
+            robot.moving = false;
+            robot.calculatePosition();
+        }
+        emit m_manager.robotChanged();
+    }
+    else
+    {
+        refreshCanvas();
+    }
+}
+
+void RobotController::updateAnimation()
+{
+    const double deltaSeconds = m_animationTimer->interval() / 1000.0;
+
+    for (auto& robot : m_manager.robots())
+    {
+        bool robotUpdated = false;
+        for (auto& segment : robot.segments)
+        {
+            auto& joint = segment.joint;
+            const double difference = joint.targetAngle - joint.angle;
+            if (std::abs(difference) < RobotTolerances::angle)
+            {
+                joint.angle = joint.targetAngle;
+                continue;
+            }
+
+            robotUpdated = true;
+            const double maxStep = joint.speed * deltaSeconds;
+            joint.angle += std::abs(difference) <= maxStep
+                ? difference
+                : (difference > 0.0 ? maxStep : -maxStep);
+        }
+
+        bool robotMoving = false;
+        for (const auto& segment : robot.segments)
+        {
+            if (std::abs(segment.joint.targetAngle - segment.joint.angle)
+                >= RobotTolerances::angle)
+            {
+                robotMoving = true;
+                break;
+            }
+        }
+
+        robot.moving = robotMoving;
+        if (robotUpdated)
+            robot.calculatePosition();
+    }
+
+    emit m_manager.robotChanged();
+    if (!hasPendingAnimation())
+        m_animationTimer->stop();
+}
+
+bool RobotController::hasPendingAnimation() const
+{
+    for (const auto& robot : m_manager.robots())
+    {
+        for (const auto& segment : robot.segments)
+        {
+            if (std::abs(segment.joint.targetAngle - segment.joint.angle)
+                >= RobotTolerances::angle)
+                return true;
+        }
+    }
+
+    return false;
 }
 
 void RobotController::syncSegmentControls()
@@ -84,7 +187,6 @@ Point2D RobotController::canvasStartPoint() const
 void RobotController::setup()
 {
     m_manager.createDefaultRobot(canvasStartPoint());
-    m_manager.setAnimateTransitions(true);
     m_manager.setGlobalJointSpeed(20.0);
     bindRobotToView();
     syncSegmentControls();
