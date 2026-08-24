@@ -32,11 +32,6 @@ RobotController::RobotController(RobotWindow* window, QObject* parent)
 
     bindRobotToView();
 
-    m_syncTimer = new QTimer(this);
-    m_syncTimer->setInterval(200);
-    connect(m_syncTimer, &QTimer::timeout,
-            this, &RobotController::syncSegmentWidgets);
-    m_syncTimer->start();
 }
 
 void RobotController::bindRobotToView()
@@ -52,38 +47,24 @@ void RobotController::refreshCanvas()
     if (m_canvas)
     m_canvas->setRobotData(m_manager.robotViewData());
 
-    syncSegmentWidgets();
+    syncSegmentControls();
 }
 
-void RobotController::syncSegmentWidgets()
+void RobotController::syncSegmentControls()
 {
     if (!m_segmentsLayout)
         return;
 
     const RobotViewData data = m_manager.robotViewData();
 
-    while (m_segmentWidgets.size() > data.segments.size())
+    auto& controls = m_window->segmentControls();
+    for (size_t index = 0; index < data.segments.size() && index < controls.size(); ++index)
     {
-        SegmentWidget* widget = m_segmentWidgets.back();
-        m_segmentWidgets.pop_back();
-        m_segmentsLayout->removeWidget(widget);
-        widget->deleteLater();
+        auto& segmentControls = controls[index];
+        if (!segmentControls.signalsConnected)
+            connectSegmentControls(segmentControls, &m_manager, static_cast<int>(index));
+        setSegmentControls(segmentControls, data.segments[index], data.moving);
     }
-
-    while (m_segmentWidgets.size() < data.segments.size())
-    {
-        const int index = static_cast<int>(m_segmentWidgets.size());
-        auto* widget = new SegmentWidget(
-            QString("Segment %1 >>").arg(index + 1),
-            &m_manager,
-            index,
-            m_window->centralWidget());
-        m_segmentsLayout->addWidget(widget);
-        m_segmentWidgets.push_back(widget);
-    }
-
-    for (size_t index = 0; index < data.segments.size(); ++index)
-        m_segmentWidgets[index]->setData(data.segments[index], data.moving);
 
     if (m_currentEndPointX && m_currentEndPointY)
     {
@@ -106,7 +87,7 @@ void RobotController::setup()
     m_manager.setAnimateTransitions(true);
     m_manager.setGlobalJointSpeed(20.0);
     bindRobotToView();
-    syncSegmentWidgets();
+    syncSegmentControls();
 }
 
 void RobotController::addRobot()

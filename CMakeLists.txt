@@ -13,6 +13,7 @@ qt_add_executable(HelloQt
   main.cpp
   point.cpp
   robot_view_data.h
+  robot_view_data.cpp
   robot_tolerances.h
   robot_algorithm.h
   point_to_point_algorithm.cpp
@@ -24,7 +25,6 @@ qt_add_executable(HelloQt
   r_robot.cpp
   r_segment.cpp
   gui_labeled_double_spinbox.cpp
-  gui_segment_widget.cpp
   robot_manager.cpp
   robot_window.cpp
   robot_controller.cpp

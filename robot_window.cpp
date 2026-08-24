@@ -9,6 +9,10 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QVBoxLayout>
+#include <QGroupBox>
+#include <QString>
+
+#define DefaultSegmentCount 3
 
 RobotWindow::RobotWindow(QWidget* parent)
     : QMainWindow(parent)
@@ -57,7 +61,14 @@ RobotWindow::RobotWindow(QWidget* parent)
     m_speedSpinBox->setSuffix(" deg/s");
     speedLayout->addWidget(speedLabel);
     speedLayout->addWidget(m_speedSpinBox);
+    auto* segmentsGroupLayout = new QHBoxLayout;
+    createSegmentsGroupBoxes(segmentsGroupLayout);
+    controlsLayout->addLayout(segmentsGroupLayout);
     controlsLayout->addLayout(speedLayout);
+    
+
+    // segmentGroup->setLayout(vbox);
+    // m_segmentsLayout->addWidget(segmentGroup);
 }
 
 Canvas* RobotWindow::canvas() const
@@ -68,6 +79,11 @@ Canvas* RobotWindow::canvas() const
 QVBoxLayout* RobotWindow::segmentsLayout() const
 {
     return m_segmentsLayout;
+}
+
+std::vector<RobotSegmentViewControls>& RobotWindow::segmentControls()
+{
+    return m_segmentControls;
 }
 
 LabeledDoubleSpinBox* RobotWindow::endPointX() const
@@ -98,4 +114,39 @@ QCheckBox* RobotWindow::animationToggle() const
 QDoubleSpinBox* RobotWindow::speedSpinBox() const
 {
     return m_speedSpinBox;
+}
+
+void RobotWindow::addSegment()
+{
+    auto* newSegmentGroup = new QGroupBox(QString("Segment: %1").arg(m_segmentGroups.size() + 1), this);
+    m_segmentGroups.push_back(newSegmentGroup);
+
+    auto* angle = new LabeledDoubleSpinBox("angle", newSegmentGroup);
+    angle->setRange(-360.0, 360.0);
+    angle->setSingleStep(1.0);
+
+    auto* length = new LabeledDoubleSpinBox("length", newSegmentGroup);
+    length->setRange(0.0, 1000.0);
+    length->setSingleStep(1.0);
+
+    auto* width = new LabeledDoubleSpinBox("width", newSegmentGroup);
+    width->setRange(0.0, 1000.0);
+    width->setSingleStep(1.0);
+
+    auto* vbox = new QVBoxLayout;
+    vbox->addWidget(angle);
+    vbox->addWidget(length);
+    vbox->addWidget(width);
+    newSegmentGroup->setLayout(vbox);
+
+    m_segmentControls.push_back({newSegmentGroup, angle, length, width});
+}
+
+void RobotWindow::createSegmentsGroupBoxes(QHBoxLayout* hbox_layout)
+{
+    for (int i = 0; i < DefaultSegmentCount; ++i) {
+        addSegment();
+        m_segmentsLayout->addWidget(m_segmentGroups.at(i));
+        hbox_layout->addWidget(m_segmentGroups.at(i));
+    }
 }

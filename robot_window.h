@@ -1,12 +1,17 @@
 #pragma once
 
 #include <QMainWindow>
+#include "robot_view_data.h"
+
+#include <vector>
 
 class Canvas;
 class QCheckBox;
 class QDoubleSpinBox;
 class QPushButton;
 class QVBoxLayout;
+class QHBoxLayout;
+class QGroupBox;
 class LabeledDoubleSpinBox;
 
 class RobotWindow : public QMainWindow
@@ -15,9 +20,12 @@ class RobotWindow : public QMainWindow
 
 public:
     explicit RobotWindow(QWidget* parent = nullptr);
-
+    
+    void addSegment();
     Canvas* canvas() const;
+    void createSegmentsGroupBoxes(QHBoxLayout* hbox_layout = nullptr);
     QVBoxLayout* segmentsLayout() const;
+    std::vector<RobotSegmentViewControls>& segmentControls();
     LabeledDoubleSpinBox* endPointX() const;
     LabeledDoubleSpinBox* endPointY() const;
     QPushButton* randomizeButton() const;
@@ -34,4 +42,6 @@ private:
     QPushButton* m_moveButton = nullptr;
     QCheckBox* m_animationToggle = nullptr;
     QDoubleSpinBox* m_speedSpinBox = nullptr;
+    std::vector<QGroupBox*> m_segmentGroups;
+    std::vector<RobotSegmentViewControls> m_segmentControls;
 };
