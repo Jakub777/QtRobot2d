@@ -20,6 +20,14 @@ public:
     void addRobot();
 
 private:
+    void createGuiConnections();
+    void connectMoveButton();
+    void connectAnimationToggle();
+    void connectSpeedControl();
+    void connectManagerSignals();
+    void connectSegmentControls(RobotSegmentViewControls& controls, int segmentIndex);
+    void updateSegmentControls(const RobotSegmentViewControls& controls,
+                               const RobotSegmentViewData& data, bool moving);
     void bindRobotToView();
     void refreshCanvas();
     void syncSegmentControls();
@@ -36,4 +44,5 @@ private:
     LabeledDoubleSpinBox* m_currentEndPointY = nullptr;
     QTimer* m_animationTimer = nullptr;
     bool m_animateTransitions = true;
+    Point2D m_targetPoint{250.0, 80.0};
 };

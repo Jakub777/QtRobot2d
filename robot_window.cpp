@@ -62,6 +62,14 @@ RobotWindow::RobotWindow(QWidget* parent)
     createSegmentsGroupBoxes(segmentsGroupLayout);
     controlsLayout->addLayout(segmentsGroupLayout);
     controlsLayout->addLayout(speedLayout);
+    auto* targetPointLayout = new QHBoxLayout;
+    m_targetPointX = new LabeledDoubleSpinBox("target X", centralWidget);
+    m_targetPointY = new LabeledDoubleSpinBox("target Y", centralWidget);
+    m_targetPointX->setReadOnly(true);
+    m_targetPointY->setReadOnly(true);
+    targetPointLayout->addWidget(m_targetPointX);
+    targetPointLayout->addWidget(m_targetPointY);
+    controlsLayout->addLayout(targetPointLayout);
     
 
     // segmentGroup->setLayout(vbox);
@@ -71,6 +79,24 @@ RobotWindow::RobotWindow(QWidget* parent)
 Canvas* RobotWindow::canvas() const
 {
     return m_canvas;
+}
+
+void RobotWindow::setRobotData(const RobotViewData& data)
+{
+    if (m_canvas)
+        m_canvas->setRobotData(data);
+
+    if (m_currentEndPointX && m_currentEndPointY)
+    {
+        m_currentEndPointX->setValue(data.endPoint.x);
+        m_currentEndPointY->setValue(data.endPoint.y);
+    }
+
+    if (m_targetPointX && m_targetPointY)
+    {
+        m_targetPointX->setValue(data.targetPoint.x);
+        m_targetPointY->setValue(data.targetPoint.y);
+    }
 }
 
 QVBoxLayout* RobotWindow::segmentsLayout() const
@@ -91,6 +117,16 @@ LabeledDoubleSpinBox* RobotWindow::endPointX() const
 LabeledDoubleSpinBox* RobotWindow::endPointY() const
 {
     return m_currentEndPointY;
+}
+
+LabeledDoubleSpinBox* RobotWindow::targetPointX() const
+{
+    return m_targetPointX;
+}
+
+LabeledDoubleSpinBox* RobotWindow::targetPointY() const
+{
+    return m_targetPointY;
 }
 
 QPushButton* RobotWindow::moveButton() const

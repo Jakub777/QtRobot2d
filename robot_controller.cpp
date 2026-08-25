@@ -5,6 +5,7 @@
 #include <QCheckBox>
 #include <QDoubleSpinBox>
 #include <QPushButton>
+#include <QSignalBlocker>
 #include <QTimer>
 #include <cmath>
 #include "robot_tolerances.h"
@@ -22,22 +23,88 @@ RobotController::RobotController(RobotWindow* window, QObject* parent)
         m_currentEndPointX = m_window->endPointX();
         m_currentEndPointY = m_window->endPointY();
 
-        connect(m_window->moveButton(), &QPushButton::clicked, this, [this]() {
-        m_manager.moveCurrentRobotTo(Point2D(250.0, 80.0));
-        });
-        connect(m_window->animationToggle(), &QCheckBox::toggled,
-            this, &RobotController::setAnimateTransitions);
-        connect(m_window->speedSpinBox(), QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-            &m_manager, &RobotManager::setGlobalJointSpeed);
-        connect(&m_manager, &RobotManager::robotChanged,
-            this, &RobotController::refreshCanvas);
-
-            m_animationTimer->setInterval(16);
-            connect(m_animationTimer, &QTimer::timeout,
-                this, &RobotController::updateAnimation);
+    createGuiConnections();
 
     bindRobotToView();
 
+}
+
+void RobotController::createGuiConnections()
+{
+    connectMoveButton();
+    connectAnimationToggle();
+    connectSpeedControl();
+    connectManagerSignals();
+}
+
+void RobotController::connectMoveButton()
+{
+    connect(m_window->moveButton(), &QPushButton::clicked, this, [this]() {
+        m_manager.moveCurrentRobotTo(m_targetPoint);
+    });
+}
+
+void RobotController::connectAnimationToggle()
+{
+    connect(m_window->animationToggle(), &QCheckBox::toggled,
+            this, &RobotController::setAnimateTransitions);
+}
+
+void RobotController::connectSpeedControl()
+{
+    connect(m_window->speedSpinBox(),
+            QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+            &m_manager, &RobotManager::setGlobalJointSpeed);
+}
+
+void RobotController::connectManagerSignals()
+{
+    connect(&m_manager, &RobotManager::robotChanged,
+            this, &RobotController::refreshCanvas);
+
+    m_animationTimer->setInterval(16);
+    connect(m_animationTimer, &QTimer::timeout,
+            this, &RobotController::updateAnimation);
+}
+
+void RobotController::connectSegmentControls(
+    RobotSegmentViewControls& controls, int segmentIndex)
+{
+    if (controls.signalsConnected || segmentIndex < 0)
+        return;
+
+    connect(controls.angle, &LabeledDoubleSpinBox::valueChanged,
+            &m_manager, [this, segmentIndex](double value) {
+        m_manager.setSegmentAngle(segmentIndex, value);
+    });
+    connect(controls.length, &LabeledDoubleSpinBox::valueChanged,
+            &m_manager, [this, segmentIndex](double value) {
+        m_manager.setSegmentLength(segmentIndex, value);
+    });
+    connect(controls.width, &LabeledDoubleSpinBox::valueChanged,
+            &m_manager, [this, segmentIndex](double value) {
+        m_manager.setSegmentWidth(segmentIndex, value);
+    });
+
+    controls.signalsConnected = true;
+}
+
+void RobotController::updateSegmentControls(
+    const RobotSegmentViewControls& controls,
+    const RobotSegmentViewData& data,
+    bool moving)
+{
+    const QSignalBlocker angleBlocker(controls.angle);
+    const QSignalBlocker lengthBlocker(controls.length);
+    const QSignalBlocker widthBlocker(controls.width);
+
+    controls.angle->setValue(data.angle);
+    controls.length->setValue(data.length);
+    controls.width->setValue(data.width);
+
+    controls.angle->setEnabled(!moving);
+    controls.length->setEnabled(!moving);
+    controls.width->setEnabled(!moving);
 }
 
 void RobotController::bindRobotToView()
@@ -45,7 +112,9 @@ void RobotController::bindRobotToView()
     if (!m_canvas)
         return;
 
-    m_canvas->setRobotData(m_manager.robotViewData());
+    RobotViewData data = m_manager.robotViewData();
+    data.targetPoint = m_targetPoint;
+    m_window->setRobotData(data);
 }
 
 void RobotController::refreshCanvas()
@@ -64,8 +133,10 @@ void RobotController::refreshCanvas()
     if (m_animateTransitions && hasPendingAnimation() && !m_animationTimer->isActive())
         m_animationTimer->start();
 
-    if (m_canvas)
-    m_canvas->setRobotData(m_manager.robotViewData());
+    RobotViewData data = m_manager.robotViewData();
+    data.targetPoint = m_targetPoint;
+    if (m_window)
+        m_window->setRobotData(data);
 
     syncSegmentControls();
 }
@@ -162,9 +233,8 @@ void RobotController::syncSegmentControls()
     for (size_t index = 0; index < data.segments.size() && index < controls.size(); ++index)
     {
         auto& segmentControls = controls[index];
-        if (!segmentControls.signalsConnected)
-            connectSegmentControls(segmentControls, &m_manager, static_cast<int>(index));
-        setSegmentControls(segmentControls, data.segments[index], data.moving);
+        connectSegmentControls(segmentControls, static_cast<int>(index));
+        updateSegmentControls(segmentControls, data.segments[index], data.moving);
     }
 
     if (m_currentEndPointX && m_currentEndPointY)
