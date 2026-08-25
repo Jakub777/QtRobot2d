@@ -36,14 +36,11 @@ RobotWindow::RobotWindow(QWidget* parent)
     m_canvas = new Canvas(300, 300, centralWidget);
     mainLayout->addWidget(m_canvas);
 
-    auto* endpointLayout = new QHBoxLayout;
-    m_currentEndPointX = new LabeledDoubleSpinBox("end X", centralWidget);
-    m_currentEndPointY = new LabeledDoubleSpinBox("end Y", centralWidget);
+    auto* pointsLayout = new QHBoxLayout;
+    createPointGroupBox("Current Point", m_currentEndPointX,
+                        m_currentEndPointY, pointsLayout);
     m_currentEndPointX->setReadOnly(true);
     m_currentEndPointY->setReadOnly(true);
-    endpointLayout->addWidget(m_currentEndPointX);
-    endpointLayout->addWidget(m_currentEndPointY);
-    controlsLayout->addLayout(endpointLayout);
 
     m_animationToggle = new QCheckBox("Animate transitions", centralWidget);
     m_animationToggle->setChecked(true);
@@ -62,14 +59,11 @@ RobotWindow::RobotWindow(QWidget* parent)
     createSegmentsGroupBoxes(segmentsGroupLayout);
     controlsLayout->addLayout(segmentsGroupLayout);
     controlsLayout->addLayout(speedLayout);
-    auto* targetPointLayout = new QHBoxLayout;
-    m_targetPointX = new LabeledDoubleSpinBox("target X", centralWidget);
-    m_targetPointY = new LabeledDoubleSpinBox("target Y", centralWidget);
+    createPointGroupBox("Target Point", m_targetPointX,
+                        m_targetPointY, pointsLayout);
     m_targetPointX->setReadOnly(true);
     m_targetPointY->setReadOnly(true);
-    targetPointLayout->addWidget(m_targetPointX);
-    targetPointLayout->addWidget(m_targetPointY);
-    controlsLayout->addLayout(targetPointLayout);
+    controlsLayout->addLayout(pointsLayout);
     
 
     // segmentGroup->setLayout(vbox);
@@ -177,4 +171,27 @@ void RobotWindow::createSegmentsGroupBoxes(QHBoxLayout* hbox_layout)
         m_segmentsLayout->addWidget(m_segmentGroups.at(i));
         hbox_layout->addWidget(m_segmentGroups.at(i));
     }
+}
+
+void RobotWindow::createPointGroupBox(const QString& title,
+                                      LabeledDoubleSpinBox*& xSpinBox,
+                                      LabeledDoubleSpinBox*& ySpinBox,
+                                      QHBoxLayout* hboxLayout)
+{
+    auto* pointGroup = new QGroupBox(title, this);
+    auto* pointLayout = new QVBoxLayout(pointGroup);
+
+    xSpinBox = new LabeledDoubleSpinBox("X", pointGroup);
+    ySpinBox = new LabeledDoubleSpinBox("Y", pointGroup);
+
+    xSpinBox->setRange(-1000.0, 1000.0);
+    ySpinBox->setRange(-1000.0, 1000.0);
+    xSpinBox->setSingleStep(1.0);
+    ySpinBox->setSingleStep(1.0);
+
+    pointLayout->addWidget(xSpinBox);
+    pointLayout->addWidget(ySpinBox);
+
+    if (hboxLayout)
+        hboxLayout->addWidget(pointGroup);
 }

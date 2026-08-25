@@ -13,6 +13,7 @@ class QVBoxLayout;
 class QHBoxLayout;
 class QGroupBox;
 class LabeledDoubleSpinBox;
+class QString;
 class Point2D;
 
 class RobotWindow : public QMainWindow
@@ -37,6 +38,11 @@ public:
     QDoubleSpinBox* speedSpinBox() const;
 
 private:
+    void createPointGroupBox(const QString& title,
+                             LabeledDoubleSpinBox*& xSpinBox,
+                             LabeledDoubleSpinBox*& ySpinBox,
+                             QHBoxLayout* hboxLayout);
+
     Canvas* m_canvas = nullptr;
     QVBoxLayout* m_segmentsLayout = nullptr;
     LabeledDoubleSpinBox* m_currentEndPointX = nullptr;
