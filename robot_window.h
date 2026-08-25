@@ -28,7 +28,6 @@ public:
     std::vector<RobotSegmentViewControls>& segmentControls();
     LabeledDoubleSpinBox* endPointX() const;
     LabeledDoubleSpinBox* endPointY() const;
-    QPushButton* randomizeButton() const;
     QPushButton* moveButton() const;
     QCheckBox* animationToggle() const;
     QDoubleSpinBox* speedSpinBox() const;
@@ -38,7 +37,6 @@ private:
     QVBoxLayout* m_segmentsLayout = nullptr;
     LabeledDoubleSpinBox* m_currentEndPointX = nullptr;
     LabeledDoubleSpinBox* m_currentEndPointY = nullptr;
-    QPushButton* m_randomizeButton = nullptr;
     QPushButton* m_moveButton = nullptr;
     QCheckBox* m_animationToggle = nullptr;
     QDoubleSpinBox* m_speedSpinBox = nullptr;

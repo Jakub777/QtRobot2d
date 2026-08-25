@@ -28,12 +28,9 @@ RobotWindow::RobotWindow(QWidget* parent)
     controlsLayout->addLayout(m_segmentsLayout);
 
     auto* label = new QLabel("Welcome to the robot simulator!", centralWidget);
-    m_randomizeButton = new QPushButton(
-        "Click the button to randomize the last angle of the robot", centralWidget);
     m_moveButton = new QPushButton("Move robot to point B", centralWidget);
 
     mainLayout->addWidget(label);
-    mainLayout->addWidget(m_randomizeButton);
     mainLayout->addWidget(m_moveButton);
 
     m_canvas = new Canvas(300, 300, centralWidget);
@@ -94,11 +91,6 @@ LabeledDoubleSpinBox* RobotWindow::endPointX() const
 LabeledDoubleSpinBox* RobotWindow::endPointY() const
 {
     return m_currentEndPointY;
-}
-
-QPushButton* RobotWindow::randomizeButton() const
-{
-    return m_randomizeButton;
 }
 
 QPushButton* RobotWindow::moveButton() const

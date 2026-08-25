@@ -22,8 +22,6 @@ RobotController::RobotController(RobotWindow* window, QObject* parent)
         m_currentEndPointX = m_window->endPointX();
         m_currentEndPointY = m_window->endPointY();
 
-        connect(m_window->randomizeButton(), &QPushButton::clicked,
-            &m_manager, &RobotManager::randomizeLastAngle);
         connect(m_window->moveButton(), &QPushButton::clicked, this, [this]() {
         m_manager.moveCurrentRobotTo(Point2D(250.0, 80.0));
         });

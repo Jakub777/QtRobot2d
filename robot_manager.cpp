@@ -1,8 +1,6 @@
 #include "robot_manager.h"
 #include "point_to_point_algorithm.h"
 
-#include <cstdlib>
-
 RobotManager::RobotManager(QObject* parent)
     : QObject(parent)
     , m_algorithm(std::make_unique<PointToPointAlgorithm>())
@@ -110,20 +108,6 @@ void RobotManager::setSegmentWidth(int index, double width)
 
     m_robots[m_currentRobotIndex].segments[index].link.width = width;
     m_robots[m_currentRobotIndex].calculatePosition();
-    emit robotChanged();
-}
-
-void RobotManager::randomizeLastAngle()
-{
-    if (m_robots.empty())
-        return;
-
-    Robot& robot = m_robots[m_currentRobotIndex];
-    if (robot.segments.empty())
-        return;
-
-    const int lastIndex = static_cast<int>(robot.segments.size()) - 1;
-    robot.segments[lastIndex].joint.targetAngle = std::rand();
     emit robotChanged();
 }
 

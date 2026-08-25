@@ -27,7 +27,6 @@ public:
     void setSegmentAngle(int index, double angle);
     void setSegmentLength(int index, double length);
     void setSegmentWidth(int index, double width);
-    void randomizeLastAngle();
     void moveCurrentRobotTo(const Point2D& target);
 
     void setGlobalJointSpeed(double speed);
