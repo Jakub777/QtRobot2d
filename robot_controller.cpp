@@ -249,7 +249,7 @@ Point2D RobotController::canvasStartPoint() const
     if (!m_canvas)
         return {};
 
-    return Point2D(m_canvas->width() / 2.0, m_canvas->height());
+    return Point2D(m_canvas->width() / 2.0, m_canvas->height() - 1.0);
 }
 
 void RobotController::setup()
