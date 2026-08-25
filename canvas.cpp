@@ -7,8 +7,7 @@
 Canvas::Canvas(int width, int height, QWidget* parent)
     : QWidget(parent)
 {
-    setMinimumHeight(height);
-    setMinimumWidth(width);
+    setFixedSize(width, height);
 }
 
 void Canvas::setRobotData(const RobotViewData& robotData)
