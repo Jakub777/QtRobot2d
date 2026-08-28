@@ -34,6 +34,7 @@ void RobotController::createGuiConnections()
     connectMoveButton();
     connectAnimationToggle();
     connectSpeedControl();
+    connectCanvasMouse();
     connectManagerSignals();
 }
 
@@ -55,6 +56,15 @@ void RobotController::connectSpeedControl()
     connect(m_window->speedSpinBox(),
             QOverload<double>::of(&QDoubleSpinBox::valueChanged),
             &m_manager, &RobotManager::setGlobalJointSpeed);
+}
+
+void RobotController::connectCanvasMouse()
+{
+    connect(m_canvas, &Canvas::pointClicked, this, [this](double x, double y) {
+        m_userPoint = Point2D(x, y);
+        m_hasUserPoint = true;
+        bindRobotToView();
+    });
 }
 
 void RobotController::connectManagerSignals()
@@ -114,6 +124,8 @@ void RobotController::bindRobotToView()
 
     RobotViewData data = m_manager.robotViewData();
     data.targetPoint = m_targetPoint;
+    data.userPoint = m_userPoint;
+    data.hasUserPoint = m_hasUserPoint;
     m_window->setRobotData(data);
 }
 
@@ -135,6 +147,8 @@ void RobotController::refreshCanvas()
 
     RobotViewData data = m_manager.robotViewData();
     data.targetPoint = m_targetPoint;
+    data.userPoint = m_userPoint;
+    data.hasUserPoint = m_hasUserPoint;
     if (m_window)
         m_window->setRobotData(data);
 

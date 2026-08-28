@@ -63,6 +63,10 @@ RobotWindow::RobotWindow(QWidget* parent)
                         m_targetPointY, pointsLayout);
     m_targetPointX->setReadOnly(true);
     m_targetPointY->setReadOnly(true);
+    createPointGroupBox("User Point", m_userPointX,
+                        m_userPointY, pointsLayout);
+    m_userPointX->setReadOnly(true);
+    m_userPointY->setReadOnly(true);
     controlsLayout->addLayout(pointsLayout);
     
 
@@ -90,6 +94,14 @@ void RobotWindow::setRobotData(const RobotViewData& data)
     {
         m_targetPointX->setValue(data.targetPoint.x);
         m_targetPointY->setValue(data.targetPoint.y);
+    }
+
+    if (m_userPointX && m_userPointY)
+    {
+        m_userPointX->setEnabled(data.hasUserPoint);
+        m_userPointY->setEnabled(data.hasUserPoint);
+        m_userPointX->setValue(data.userPoint.x);
+        m_userPointY->setValue(data.userPoint.y);
     }
 }
 
@@ -121,6 +133,16 @@ LabeledDoubleSpinBox* RobotWindow::targetPointX() const
 LabeledDoubleSpinBox* RobotWindow::targetPointY() const
 {
     return m_targetPointY;
+}
+
+LabeledDoubleSpinBox* RobotWindow::userPointX() const
+{
+    return m_userPointX;
+}
+
+LabeledDoubleSpinBox* RobotWindow::userPointY() const
+{
+    return m_userPointY;
 }
 
 QPushButton* RobotWindow::moveButton() const

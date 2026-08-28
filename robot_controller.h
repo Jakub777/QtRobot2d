@@ -24,6 +24,7 @@ private:
     void connectMoveButton();
     void connectAnimationToggle();
     void connectSpeedControl();
+    void connectCanvasMouse();
     void connectManagerSignals();
     void connectSegmentControls(RobotSegmentViewControls& controls, int segmentIndex);
     void updateSegmentControls(const RobotSegmentViewControls& controls,
@@ -45,4 +46,6 @@ private:
     QTimer* m_animationTimer = nullptr;
     bool m_animateTransitions = true;
     Point2D m_targetPoint{250.0, 80.0};
+    Point2D m_userPoint;
+    bool m_hasUserPoint = false;
 };

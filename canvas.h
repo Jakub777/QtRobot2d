@@ -16,8 +16,12 @@ public:
     void setRobotData(const RobotViewData& robotData);
     void addPoint(double x, double y);
 
+signals:
+    void pointClicked(double x, double y);
+
 protected:
     void paintEvent(QPaintEvent* event) override;
+    void mousePressEvent(QMouseEvent* event) override;
 
 private:
     RobotViewData my_robot;

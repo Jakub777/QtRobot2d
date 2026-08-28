@@ -28,5 +28,7 @@ public:
     Point2D startPoint;
     Point2D endPoint;
     Point2D targetPoint;
+    Point2D userPoint;
+    bool hasUserPoint = false;
     std::vector<RobotSegmentViewData> segments;
 };

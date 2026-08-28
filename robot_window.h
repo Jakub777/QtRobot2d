@@ -33,6 +33,8 @@ public:
     LabeledDoubleSpinBox* endPointY() const;
     LabeledDoubleSpinBox* targetPointX() const;
     LabeledDoubleSpinBox* targetPointY() const;
+    LabeledDoubleSpinBox* userPointX() const;
+    LabeledDoubleSpinBox* userPointY() const;
     QPushButton* moveButton() const;
     QCheckBox* animationToggle() const;
     QDoubleSpinBox* speedSpinBox() const;
@@ -49,6 +51,8 @@ private:
     LabeledDoubleSpinBox* m_currentEndPointY = nullptr;
     LabeledDoubleSpinBox* m_targetPointX = nullptr;
     LabeledDoubleSpinBox* m_targetPointY = nullptr;
+    LabeledDoubleSpinBox* m_userPointX = nullptr;
+    LabeledDoubleSpinBox* m_userPointY = nullptr;
     QPushButton* m_moveButton = nullptr;
     QCheckBox* m_animationToggle = nullptr;
     QDoubleSpinBox* m_speedSpinBox = nullptr;

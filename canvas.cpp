@@ -1,5 +1,6 @@
 #include <QWidget>
 #include <QPainter>
+#include <QMouseEvent>
 #include <vector>
 #include "point.h"
 #include "canvas.h"
@@ -40,4 +41,20 @@ void Canvas::paintEvent(QPaintEvent* event)
                          segment.end.x,
                          segment.end.y);
     }
+
+    if (my_robot.hasUserPoint)
+    {
+        painter.setPen(Qt::red);
+        painter.setBrush(Qt::red);
+        painter.drawEllipse(QPointF(my_robot.userPoint.x,
+                                    my_robot.userPoint.y), 4, 4);
+    }
+}
+
+void Canvas::mousePressEvent(QMouseEvent* event)
+{
+    if (event->button() == Qt::LeftButton)
+        emit pointClicked(event->position().x(), event->position().y());
+
+    QWidget::mousePressEvent(event);
 }
