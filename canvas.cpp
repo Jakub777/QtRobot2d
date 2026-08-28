@@ -1,5 +1,6 @@
 #include <QWidget>
 #include <QPainter>
+#include <QMouseEvent>
 #include <vector>
 #include "point.h"
 #include "canvas.h"
@@ -7,8 +8,7 @@
 Canvas::Canvas(int width, int height, QWidget* parent)
     : QWidget(parent)
 {
-    setMinimumHeight(height);
-    setMinimumWidth(width);
+    setFixedSize(width, height);
 }
 
 void Canvas::setRobotData(const RobotViewData& robotData)
@@ -41,4 +41,23 @@ void Canvas::paintEvent(QPaintEvent* event)
                          segment.end.x,
                          segment.end.y);
     }
+
+    if (my_robot.hasUserPoint)
+    {
+        const QColor pointColor = my_robot.userPointReachable
+            ? Qt::green
+            : Qt::red;
+        painter.setPen(pointColor);
+        painter.setBrush(pointColor);
+        painter.drawEllipse(QPointF(my_robot.userPoint.x,
+                                    my_robot.userPoint.y), 4, 4);
+    }
+}
+
+void Canvas::mousePressEvent(QMouseEvent* event)
+{
+    if (event->button() == Qt::LeftButton)
+        emit pointClicked(event->position().x(), event->position().y());
+
+    QWidget::mousePressEvent(event);
 }

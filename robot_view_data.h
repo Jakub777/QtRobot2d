@@ -3,6 +3,15 @@
 #include "point.h"
 #include <vector>
 
+struct RobotSegmentViewControls
+{
+    class QWidget* widget = nullptr;
+    class LabeledDoubleSpinBox* angle = nullptr;
+    class LabeledDoubleSpinBox* length = nullptr;
+    class LabeledDoubleSpinBox* width = nullptr;
+    bool signalsConnected = false;
+};
+
 struct RobotSegmentViewData
 {
     Point2D start;
@@ -18,5 +27,9 @@ public:
     bool moving = false;
     Point2D startPoint;
     Point2D endPoint;
+    Point2D targetPoint;
+    Point2D userPoint;
+    bool hasUserPoint = false;
+    bool userPointReachable = false;
     std::vector<RobotSegmentViewData> segments;
 };

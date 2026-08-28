@@ -30,7 +30,6 @@ void Robot::addStartingPoint(int x, int y)
         cumulativeAngle += segments[i].joint.angle;
         segments[i].calculateAndOverwriteEnd(cumulativeAngle);
         endPoint = segments[i].end;
-        segments[i].debugPrint(i);
     }
 }
 
