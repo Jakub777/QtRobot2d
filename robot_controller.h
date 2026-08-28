@@ -21,7 +21,7 @@ public:
 
 private:
     void createGuiConnections();
-    void connectMoveButton();
+    void connectTryReachUserMousePointButton();
     void connectAnimationToggle();
     void connectSpeedControl();
     void connectCanvasMouse();

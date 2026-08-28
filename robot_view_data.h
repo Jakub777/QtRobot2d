@@ -30,5 +30,6 @@ public:
     Point2D targetPoint;
     Point2D userPoint;
     bool hasUserPoint = false;
+    bool userPointReachable = false;
     std::vector<RobotSegmentViewData> segments;
 };

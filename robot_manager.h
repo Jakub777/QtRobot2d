@@ -28,6 +28,7 @@ public:
     void setSegmentLength(int index, double length);
     void setSegmentWidth(int index, double width);
     void moveCurrentRobotTo(const Point2D& target);
+    bool isPointReachable(const Point2D& target) const;
 
     void setGlobalJointSpeed(double speed);
 

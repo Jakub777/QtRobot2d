@@ -1,5 +1,8 @@
 #include "robot_manager.h"
 #include "point_to_point_algorithm.h"
+#include "robot_tolerances.h"
+
+#include <cmath>
 
 RobotManager::RobotManager(QObject* parent)
     : QObject(parent)
@@ -127,6 +130,28 @@ void RobotManager::moveCurrentRobotTo(const Point2D& target)
     }
 
     emit robotChanged();
+}
+
+bool RobotManager::isPointReachable(const Point2D& target) const
+{
+    if (m_robots.empty() || !m_algorithm)
+        return false;
+
+    const Robot& currentRobot = m_robots[m_currentRobotIndex];
+    Robot candidate = currentRobot;
+    const std::vector<double> targetAngles =
+        m_algorithm->calculateTargetAngles(currentRobot, target);
+
+    if (targetAngles.size() != candidate.segments.size())
+        return false;
+
+    for (size_t index = 0; index < targetAngles.size(); ++index)
+        candidate.segments[index].joint.angle = targetAngles[index];
+
+    candidate.calculatePosition();
+    const double dx = candidate.endPoint.x - target.x;
+    const double dy = candidate.endPoint.y - target.y;
+    return std::sqrt(dx * dx + dy * dy) <= RobotTolerances::position;
 }
 
 void RobotManager::setGlobalJointSpeed(double speed)

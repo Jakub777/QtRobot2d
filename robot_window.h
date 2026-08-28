@@ -13,6 +13,7 @@ class QVBoxLayout;
 class QHBoxLayout;
 class QGroupBox;
 class LabeledDoubleSpinBox;
+class QPlainTextEdit;
 class QString;
 class Point2D;
 
@@ -35,9 +36,10 @@ public:
     LabeledDoubleSpinBox* targetPointY() const;
     LabeledDoubleSpinBox* userPointX() const;
     LabeledDoubleSpinBox* userPointY() const;
-    QPushButton* moveButton() const;
+    QPushButton* tryReachUserMousePointButton() const;
     QCheckBox* animationToggle() const;
     QDoubleSpinBox* speedSpinBox() const;
+    void appendMessage(const QString& message);
 
 private:
     void createPointGroupBox(const QString& title,
@@ -53,9 +55,10 @@ private:
     LabeledDoubleSpinBox* m_targetPointY = nullptr;
     LabeledDoubleSpinBox* m_userPointX = nullptr;
     LabeledDoubleSpinBox* m_userPointY = nullptr;
-    QPushButton* m_moveButton = nullptr;
+    QPushButton* m_tryReachUserMousePointButton = nullptr;
     QCheckBox* m_animationToggle = nullptr;
     QDoubleSpinBox* m_speedSpinBox = nullptr;
+    QPlainTextEdit* m_messageOutput = nullptr;
     std::vector<QGroupBox*> m_segmentGroups;
     std::vector<RobotSegmentViewControls> m_segmentControls;
 };

@@ -44,8 +44,11 @@ void Canvas::paintEvent(QPaintEvent* event)
 
     if (my_robot.hasUserPoint)
     {
-        painter.setPen(Qt::red);
-        painter.setBrush(Qt::red);
+        const QColor pointColor = my_robot.userPointReachable
+            ? Qt::green
+            : Qt::red;
+        painter.setPen(pointColor);
+        painter.setBrush(pointColor);
         painter.drawEllipse(QPointF(my_robot.userPoint.x,
                                     my_robot.userPoint.y), 4, 4);
     }

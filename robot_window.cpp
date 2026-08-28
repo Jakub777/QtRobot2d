@@ -8,6 +8,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QPushButton>
+#include <QPlainTextEdit>
 #include <QVBoxLayout>
 #include <QGroupBox>
 #include <QString>
@@ -19,22 +20,31 @@ RobotWindow::RobotWindow(QWidget* parent)
 {
     auto* centralWidget = new QWidget(this);
     setCentralWidget(centralWidget);
+    setWindowTitle("Welcome to the robot simulator!");
 
     auto* mainLayout = new QVBoxLayout(centralWidget);
+    auto* columnsLayout = new QHBoxLayout;
     auto* controlsLayout = new QVBoxLayout;
     m_segmentsLayout = new QVBoxLayout;
 
-    mainLayout->addLayout(controlsLayout);
-    controlsLayout->addLayout(m_segmentsLayout);
+    columnsLayout->addLayout(controlsLayout);
+    columnsLayout->addLayout(m_segmentsLayout);
+    mainLayout->addLayout(columnsLayout);
 
-    auto* label = new QLabel("Welcome to the robot simulator!", centralWidget);
-    m_moveButton = new QPushButton("Move robot to point B", centralWidget);
-
-    mainLayout->addWidget(label);
-    mainLayout->addWidget(m_moveButton);
+    m_tryReachUserMousePointButton = new QPushButton(
+        "Try reaching user mouse point", centralWidget);
 
     m_canvas = new Canvas(300, 300, centralWidget);
     mainLayout->addWidget(m_canvas);
+
+    auto* messageLabel = new QLabel("Messages", centralWidget);
+    m_messageOutput = new QPlainTextEdit(centralWidget);
+    m_messageOutput->setReadOnly(true);
+    m_messageOutput->setMaximumBlockCount(100);
+    m_messageOutput->setFixedHeight(
+        3 * m_messageOutput->fontMetrics().lineSpacing() + 24);
+    mainLayout->addWidget(messageLabel);
+    mainLayout->addWidget(m_messageOutput);
 
     auto* pointsLayout = new QHBoxLayout;
     createPointGroupBox("Current Point", m_currentEndPointX,
@@ -44,7 +54,10 @@ RobotWindow::RobotWindow(QWidget* parent)
 
     m_animationToggle = new QCheckBox("Animate transitions", centralWidget);
     m_animationToggle->setChecked(true);
-    controlsLayout->addWidget(m_animationToggle);
+
+    auto* robotControlsGroup = new QGroupBox("Robot Controls", centralWidget);
+    auto* robotControlsLayout = new QVBoxLayout(robotControlsGroup);
+    robotControlsLayout->addWidget(m_animationToggle);
 
     auto* speedLayout = new QHBoxLayout;
     auto* speedLabel = new QLabel("Joint speed (deg/s):", centralWidget);
@@ -55,10 +68,13 @@ RobotWindow::RobotWindow(QWidget* parent)
     m_speedSpinBox->setSuffix(" deg/s");
     speedLayout->addWidget(speedLabel);
     speedLayout->addWidget(m_speedSpinBox);
-    auto* segmentsGroupLayout = new QHBoxLayout;
-    createSegmentsGroupBoxes(segmentsGroupLayout);
-    controlsLayout->addLayout(segmentsGroupLayout);
-    controlsLayout->addLayout(speedLayout);
+    robotControlsLayout->addLayout(speedLayout);
+    robotControlsLayout->addWidget(m_tryReachUserMousePointButton);
+
+    controlsLayout->addWidget(robotControlsGroup);
+    auto* segmentsRowLayout = new QHBoxLayout;
+    createSegmentsGroupBoxes(segmentsRowLayout);
+    m_segmentsLayout->addLayout(segmentsRowLayout);
     createPointGroupBox("Target Point", m_targetPointX,
                         m_targetPointY, pointsLayout);
     m_targetPointX->setReadOnly(true);
@@ -67,7 +83,7 @@ RobotWindow::RobotWindow(QWidget* parent)
                         m_userPointY, pointsLayout);
     m_userPointX->setReadOnly(true);
     m_userPointY->setReadOnly(true);
-    controlsLayout->addLayout(pointsLayout);
+    m_segmentsLayout->addLayout(pointsLayout);
     
 
     // segmentGroup->setLayout(vbox);
@@ -145,9 +161,9 @@ LabeledDoubleSpinBox* RobotWindow::userPointY() const
     return m_userPointY;
 }
 
-QPushButton* RobotWindow::moveButton() const
+QPushButton* RobotWindow::tryReachUserMousePointButton() const
 {
-    return m_moveButton;
+    return m_tryReachUserMousePointButton;
 }
 
 QCheckBox* RobotWindow::animationToggle() const
@@ -158,6 +174,12 @@ QCheckBox* RobotWindow::animationToggle() const
 QDoubleSpinBox* RobotWindow::speedSpinBox() const
 {
     return m_speedSpinBox;
+}
+
+void RobotWindow::appendMessage(const QString& message)
+{
+    if (m_messageOutput)
+        m_messageOutput->appendPlainText(message);
 }
 
 void RobotWindow::addSegment()
@@ -190,8 +212,10 @@ void RobotWindow::createSegmentsGroupBoxes(QHBoxLayout* hbox_layout)
 {
     for (int i = 0; i < DefaultSegmentCount; ++i) {
         addSegment();
-        m_segmentsLayout->addWidget(m_segmentGroups.at(i));
-        hbox_layout->addWidget(m_segmentGroups.at(i));
+        if (hbox_layout)
+            hbox_layout->addWidget(m_segmentGroups.at(i));
+        else
+            m_segmentsLayout->addWidget(m_segmentGroups.at(i));
     }
 }
 

@@ -6,6 +6,7 @@
 #include <QDoubleSpinBox>
 #include <QPushButton>
 #include <QSignalBlocker>
+#include <QString>
 #include <QTimer>
 #include <cmath>
 #include "robot_tolerances.h"
@@ -31,17 +32,39 @@ RobotController::RobotController(RobotWindow* window, QObject* parent)
 
 void RobotController::createGuiConnections()
 {
-    connectMoveButton();
+    connectTryReachUserMousePointButton();
     connectAnimationToggle();
     connectSpeedControl();
     connectCanvasMouse();
     connectManagerSignals();
 }
 
-void RobotController::connectMoveButton()
+void RobotController::connectTryReachUserMousePointButton()
 {
-    connect(m_window->moveButton(), &QPushButton::clicked, this, [this]() {
-        m_manager.moveCurrentRobotTo(m_targetPoint);
+    connect(m_window->tryReachUserMousePointButton(), &QPushButton::clicked,
+            this, [this]() {
+        if (!m_hasUserPoint)
+        {
+            m_window->appendMessage("Choose a point with the mouse first.");
+            return;
+        }
+
+        m_targetPoint = m_userPoint;
+        bindRobotToView();
+
+        if (m_manager.isPointReachable(m_targetPoint))
+        {
+            m_window->appendMessage(QString("Target point set to (%1, %2). Robot is moving.")
+                .arg(m_targetPoint.x, 0, 'f', 1)
+                .arg(m_targetPoint.y, 0, 'f', 1));
+            m_manager.moveCurrentRobotTo(m_targetPoint);
+        }
+        else
+        {
+            m_window->appendMessage(QString("Target point (%1, %2) is outside the robot's reach.")
+                .arg(m_targetPoint.x, 0, 'f', 1)
+                .arg(m_targetPoint.y, 0, 'f', 1));
+        }
     });
 }
 
@@ -64,6 +87,11 @@ void RobotController::connectCanvasMouse()
         m_userPoint = Point2D(x, y);
         m_hasUserPoint = true;
         bindRobotToView();
+        const bool reachable = m_manager.isPointReachable(m_userPoint);
+        m_window->appendMessage(QString("User point selected: (%1, %2) - %3.")
+            .arg(x, 0, 'f', 1)
+            .arg(y, 0, 'f', 1)
+            .arg(reachable ? "reachable" : "outside reach"));
     });
 }
 
@@ -126,6 +154,8 @@ void RobotController::bindRobotToView()
     data.targetPoint = m_targetPoint;
     data.userPoint = m_userPoint;
     data.hasUserPoint = m_hasUserPoint;
+    data.userPointReachable = m_hasUserPoint
+        && m_manager.isPointReachable(m_userPoint);
     m_window->setRobotData(data);
 }
 
@@ -149,6 +179,8 @@ void RobotController::refreshCanvas()
     data.targetPoint = m_targetPoint;
     data.userPoint = m_userPoint;
     data.hasUserPoint = m_hasUserPoint;
+    data.userPointReachable = m_hasUserPoint
+        && m_manager.isPointReachable(m_userPoint);
     if (m_window)
         m_window->setRobotData(data);
 
@@ -178,6 +210,7 @@ void RobotController::setAnimateTransitions(bool enabled)
 
 void RobotController::updateAnimation()
 {
+    const bool wasMoving = hasPendingAnimation();
     const double deltaSeconds = m_animationTimer->interval() / 1000.0;
 
     for (auto& robot : m_manager.robots())
@@ -218,7 +251,11 @@ void RobotController::updateAnimation()
 
     emit m_manager.robotChanged();
     if (!hasPendingAnimation())
+    {
         m_animationTimer->stop();
+        if (wasMoving)
+            m_window->appendMessage("Robot reached the target point.");
+    }
 }
 
 bool RobotController::hasPendingAnimation() const
@@ -272,6 +309,7 @@ void RobotController::setup()
     m_manager.setGlobalJointSpeed(20.0);
     bindRobotToView();
     syncSegmentControls();
+    m_window->appendMessage("Robot ready. Select a point on the canvas.");
 }
 
 void RobotController::addRobot()
