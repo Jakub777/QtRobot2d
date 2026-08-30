@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
     RobotController controller(&appWindow);
 
     controller.setup();
-    appWindow.show();
+    appWindow.showMaximized();
 
     return app.exec();
 }
