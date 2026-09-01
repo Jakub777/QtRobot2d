@@ -26,9 +26,11 @@ void Canvas::addPoint(double x, double y)
 void Canvas::paintEvent(QPaintEvent* event)
 {
     QPainter painter(this);
+    painter.setRenderHint(QPainter::Antialiasing, true);
+    painter.setRenderHint(QPainter::TextAntialiasing, true);
 
     painter.fillRect(rect(), Qt::white);
-    painter.setPen(Qt::black);
+    painter.setPen(QPen(Qt::black, 1, Qt::SolidLine, Qt::RoundCap));
 
     for (const auto& point : points)
     {

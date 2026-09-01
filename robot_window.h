@@ -25,6 +25,9 @@ public:
     explicit RobotWindow(QWidget* parent = nullptr);
     
     void addSegment();
+    void removeSegment();
+    void setSegmentControlCount(int count);
+    int segmentCount() const;
     void setRobotData(const RobotViewData& data);
     Canvas* canvas() const;
     void createSegmentsGroupBoxes(QHBoxLayout* hbox_layout = nullptr);
@@ -37,6 +40,8 @@ public:
     LabeledDoubleSpinBox* userPointX() const;
     LabeledDoubleSpinBox* userPointY() const;
     QPushButton* tryReachUserMousePointButton() const;
+    QPushButton* addSegmentButton() const;
+    QPushButton* removeSegmentButton() const;
     QCheckBox* animationToggle() const;
     QDoubleSpinBox* speedSpinBox() const;
     void appendMessage(const QString& message);
@@ -59,6 +64,9 @@ private:
     QCheckBox* m_animationToggle = nullptr;
     QDoubleSpinBox* m_speedSpinBox = nullptr;
     QPlainTextEdit* m_messageOutput = nullptr;
+    QPushButton* m_addSegmentButton = nullptr;
+    QPushButton* m_removeSegmentButton = nullptr;
+    QHBoxLayout* m_segmentsRowLayout = nullptr;
     std::vector<QGroupBox*> m_segmentGroups;
     std::vector<RobotSegmentViewControls> m_segmentControls;
 };

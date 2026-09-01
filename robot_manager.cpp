@@ -72,7 +72,7 @@ void RobotManager::setSegmentCount(int count)
     Robot& robot = m_robots[m_currentRobotIndex];
 
     while (static_cast<int>(robot.segments.size()) < count)
-        robot.addSegment(0, 40, 20);
+        robot.addSegment();
 
     while (static_cast<int>(robot.segments.size()) > count)
         robot.segments.pop_back();
