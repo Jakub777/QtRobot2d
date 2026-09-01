@@ -23,20 +23,13 @@ RobotWindow::RobotWindow(QWidget* parent)
     setWindowTitle("Welcome to the robot simulator!");
 
     auto* mainLayout = new QVBoxLayout(centralWidget);
-    auto* columnsLayout = new QHBoxLayout;
-    auto* controlsLayout = new QVBoxLayout;
     m_segmentsLayout = new QVBoxLayout;
     m_segmentsRowLayout = new QHBoxLayout;
-
-    columnsLayout->addLayout(controlsLayout);
-    columnsLayout->addLayout(m_segmentsLayout);
-    mainLayout->addLayout(columnsLayout);
 
     m_tryReachUserMousePointButton = new QPushButton(
         "Try reaching user mouse point", centralWidget);
 
     m_canvas = new Canvas(300, 300, centralWidget);
-    mainLayout->addWidget(m_canvas);
 
     auto* messageLabel = new QLabel("Messages", centralWidget);
     m_messageOutput = new QPlainTextEdit(centralWidget);
@@ -44,8 +37,6 @@ RobotWindow::RobotWindow(QWidget* parent)
     m_messageOutput->setMaximumBlockCount(100);
     m_messageOutput->setFixedHeight(
         3 * m_messageOutput->fontMetrics().lineSpacing() + 24);
-    mainLayout->addWidget(messageLabel);
-    mainLayout->addWidget(m_messageOutput);
 
     auto* pointsLayout = new QHBoxLayout;
     createPointGroupBox("Current Point", m_currentEndPointX,
@@ -79,9 +70,9 @@ RobotWindow::RobotWindow(QWidget* parent)
     robotControlsLayout->addLayout(speedLayout);
     robotControlsLayout->addWidget(m_tryReachUserMousePointButton);
 
-    controlsLayout->addWidget(robotControlsGroup);
     createSegmentsGroupBoxes(m_segmentsRowLayout);
-    m_segmentsLayout->addLayout(m_segmentsRowLayout);
+    mainLayout->addLayout(m_segmentsRowLayout);
+
     createPointGroupBox("Target Point", m_targetPointX,
                         m_targetPointY, pointsLayout);
     m_targetPointX->setReadOnly(true);
@@ -90,11 +81,17 @@ RobotWindow::RobotWindow(QWidget* parent)
                         m_userPointY, pointsLayout);
     m_userPointX->setReadOnly(true);
     m_userPointY->setReadOnly(true);
-    m_segmentsLayout->addLayout(pointsLayout);
-    
+    mainLayout->addLayout(pointsLayout);
 
-    // segmentGroup->setLayout(vbox);
-    // m_segmentsLayout->addWidget(segmentGroup);
+    auto* canvasControlsRow = new QHBoxLayout;
+    canvasControlsRow->addWidget(m_canvas);
+    canvasControlsRow->addWidget(robotControlsGroup);
+    mainLayout->addLayout(canvasControlsRow);
+
+    auto* logLayout = new QVBoxLayout;
+    logLayout->addWidget(messageLabel);
+    logLayout->addWidget(m_messageOutput);
+    mainLayout->addLayout(logLayout);
 }
 
 Canvas* RobotWindow::canvas() const

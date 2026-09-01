@@ -14,7 +14,7 @@ public:
     bool moving = false;
     Robot();
     void addStartingPoint(int x, int y);
-    void addSegment(double angle, double length, double width);
+    void addSegment(double angle = 0.0, double length = 40.0, double width = 20.0);
     void draw(QPainter& painter);
     void calculatePosition();
     RobotViewData createViewData() const;
