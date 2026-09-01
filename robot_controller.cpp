@@ -37,6 +37,23 @@ void RobotController::createGuiConnections()
     connectSpeedControl();
     connectCanvasMouse();
     connectManagerSignals();
+
+    connect(m_window->addSegmentButton(), &QPushButton::clicked, this, [this]() {
+        const int count = m_manager.robot() ? static_cast<int>(m_manager.robot()->segments.size()) : 0;
+        m_manager.setSegmentCount(count + 1);
+        m_window->setSegmentControlCount(m_manager.robot() ? static_cast<int>(m_manager.robot()->segments.size()) : 0);
+        syncSegmentControls();
+    });
+
+    connect(m_window->removeSegmentButton(), &QPushButton::clicked, this, [this]() {
+        const int count = m_manager.robot() ? static_cast<int>(m_manager.robot()->segments.size()) : 0;
+        if (count <= 1)
+            return;
+
+        m_manager.setSegmentCount(count - 1);
+        m_window->setSegmentControlCount(m_manager.robot() ? static_cast<int>(m_manager.robot()->segments.size()) : 0);
+        syncSegmentControls();
+    });
 }
 
 void RobotController::connectTryReachUserMousePointButton()
@@ -279,6 +296,7 @@ void RobotController::syncSegmentControls()
         return;
 
     const RobotViewData data = m_manager.robotViewData();
+    m_window->setSegmentControlCount(static_cast<int>(data.segments.size()));
 
     auto& controls = m_window->segmentControls();
     for (size_t index = 0; index < data.segments.size() && index < controls.size(); ++index)

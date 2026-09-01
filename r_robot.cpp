@@ -33,7 +33,7 @@ void Robot::addStartingPoint(int x, int y)
     }
 }
 
-void Robot::addSegment(double angle, double length, double width = 20.0)
+void Robot::addSegment(double angle, double length, double width)
 {
     Segment new_segment = Segment(angle, length, width);
     segments.emplace_back(new_segment);

@@ -10,7 +10,7 @@ public:
     Link link;
     Point2D start;
     Point2D end;
-    Segment(double angle, double length, double width);
+    Segment(double angle = 0.0, double length = 40.0, double width = 20.0);
     void calculateAndOverwriteEnd(double baseAngle);
     Point2D getEnd();
 };

@@ -26,6 +26,7 @@ RobotWindow::RobotWindow(QWidget* parent)
     auto* columnsLayout = new QHBoxLayout;
     auto* controlsLayout = new QVBoxLayout;
     m_segmentsLayout = new QVBoxLayout;
+    m_segmentsRowLayout = new QHBoxLayout;
 
     columnsLayout->addLayout(controlsLayout);
     columnsLayout->addLayout(m_segmentsLayout);
@@ -59,6 +60,13 @@ RobotWindow::RobotWindow(QWidget* parent)
     auto* robotControlsLayout = new QVBoxLayout(robotControlsGroup);
     robotControlsLayout->addWidget(m_animationToggle);
 
+    auto* segmentButtonsLayout = new QHBoxLayout;
+    m_addSegmentButton = new QPushButton("Add segment", centralWidget);
+    m_removeSegmentButton = new QPushButton("Remove segment", centralWidget);
+    segmentButtonsLayout->addWidget(m_addSegmentButton);
+    segmentButtonsLayout->addWidget(m_removeSegmentButton);
+    robotControlsLayout->addLayout(segmentButtonsLayout);
+
     auto* speedLayout = new QHBoxLayout;
     auto* speedLabel = new QLabel("Joint speed (deg/s):", centralWidget);
     m_speedSpinBox = new QDoubleSpinBox(centralWidget);
@@ -72,9 +80,8 @@ RobotWindow::RobotWindow(QWidget* parent)
     robotControlsLayout->addWidget(m_tryReachUserMousePointButton);
 
     controlsLayout->addWidget(robotControlsGroup);
-    auto* segmentsRowLayout = new QHBoxLayout;
-    createSegmentsGroupBoxes(segmentsRowLayout);
-    m_segmentsLayout->addLayout(segmentsRowLayout);
+    createSegmentsGroupBoxes(m_segmentsRowLayout);
+    m_segmentsLayout->addLayout(m_segmentsRowLayout);
     createPointGroupBox("Target Point", m_targetPointX,
                         m_targetPointY, pointsLayout);
     m_targetPointX->setReadOnly(true);
@@ -166,6 +173,16 @@ QPushButton* RobotWindow::tryReachUserMousePointButton() const
     return m_tryReachUserMousePointButton;
 }
 
+QPushButton* RobotWindow::addSegmentButton() const
+{
+    return m_addSegmentButton;
+}
+
+QPushButton* RobotWindow::removeSegmentButton() const
+{
+    return m_removeSegmentButton;
+}
+
 QCheckBox* RobotWindow::animationToggle() const
 {
     return m_animationToggle;
@@ -190,14 +207,17 @@ void RobotWindow::addSegment()
     auto* angle = new LabeledDoubleSpinBox("angle", newSegmentGroup);
     angle->setRange(-360.0, 360.0);
     angle->setSingleStep(1.0);
+    angle->setValue(90.0);
 
     auto* length = new LabeledDoubleSpinBox("length", newSegmentGroup);
     length->setRange(0.0, 1000.0);
     length->setSingleStep(1.0);
+    length->setValue(40.0);
 
     auto* width = new LabeledDoubleSpinBox("width", newSegmentGroup);
     width->setRange(0.0, 1000.0);
     width->setSingleStep(1.0);
+    width->setValue(20.0);
 
     auto* vbox = new QVBoxLayout;
     vbox->addWidget(angle);
@@ -205,18 +225,50 @@ void RobotWindow::addSegment()
     vbox->addWidget(width);
     newSegmentGroup->setLayout(vbox);
 
+    if (m_segmentsRowLayout)
+        m_segmentsRowLayout->addWidget(newSegmentGroup);
+
     m_segmentControls.push_back({newSegmentGroup, angle, length, width});
+}
+
+void RobotWindow::removeSegment()
+{
+    if (m_segmentGroups.empty() || m_segmentControls.empty())
+        return;
+
+    auto* segmentGroup = m_segmentGroups.back();
+    if (m_segmentsRowLayout)
+        m_segmentsRowLayout->removeWidget(segmentGroup);
+    segmentGroup->deleteLater();
+
+    m_segmentGroups.pop_back();
+    m_segmentControls.pop_back();
+}
+
+void RobotWindow::setSegmentControlCount(int count)
+{
+    if (count < 1)
+        count = 1;
+
+    while (static_cast<int>(m_segmentControls.size()) < count)
+        addSegment();
+
+    while (static_cast<int>(m_segmentControls.size()) > count)
+        removeSegment();
+}
+
+int RobotWindow::segmentCount() const
+{
+    return static_cast<int>(m_segmentControls.size());
 }
 
 void RobotWindow::createSegmentsGroupBoxes(QHBoxLayout* hbox_layout)
 {
-    for (int i = 0; i < DefaultSegmentCount; ++i) {
+    if (hbox_layout)
+        m_segmentsRowLayout = hbox_layout;
+
+    for (int i = 0; i < DefaultSegmentCount; ++i)
         addSegment();
-        if (hbox_layout)
-            hbox_layout->addWidget(m_segmentGroups.at(i));
-        else
-            m_segmentsLayout->addWidget(m_segmentGroups.at(i));
-    }
 }
 
 void RobotWindow::createPointGroupBox(const QString& title,
